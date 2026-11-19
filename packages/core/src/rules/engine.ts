@@ -1,5 +1,5 @@
 // Deterministic contract & recruiter-post rules. Offline, on-device, explainable.
-// Messages are pre-written (Tagalog + English) so they work without the cloud and without on-device
+// Messages are pre-written (everyday Taglish + English) so they work without the cloud and without on-device
 // Tagalog generation (Gemini Nano can't output Tagalog). The cloud model adds explanation later; it
 // never invents rules. Every finding cites a verbatim source in docs/sources/.
 import { CITATIONS, type Citation } from "./sources";
@@ -60,9 +60,9 @@ const salaryRule: Rule = (cls, _full, cfg) => {
       if (monthly < cfg.hswOldMinSalaryUsd)
         return [{
           ruleId: "salary.below_old_min", severity: "red", evidence: c, citations: [CITATIONS.ADV25_WAGE],
-          title: { tl: "Masyadong mababa ang sahod", en: "Salary is too low" },
+          title: { tl: "Masyadong mababa ang salary", en: "Salary is too low" },
           detail: {
-            tl: `Ang ${v} kada buwan ay mas mababa pa sa lumang minimum na US$${cfg.hswOldMinSalaryUsd} para sa household service workers.`,
+            tl: `Ang ${v} kada buwan ay mas mababa pa sa dating minimum na US$${cfg.hswOldMinSalaryUsd} para sa household service workers.`,
             en: `${v} per month is below even the old US$${cfg.hswOldMinSalaryUsd} minimum for household service workers.`,
           },
         }];
@@ -71,14 +71,14 @@ const salaryRule: Rule = (cls, _full, cfg) => {
           ruleId: "salary.below_new_min", severity: "amber", evidence: c, citations: [CITATIONS.ADV25_WAGE, CITATIONS.MC03_TRANSITION],
           title: { tl: `Mas mababa sa bagong US$${cfg.hswMinSalaryUsd} na minimum`, en: `Below the new US$${cfg.hswMinSalaryUsd} minimum` },
           detail: {
-            tl: `Ang ${v} kada buwan ay umaabot sa lumang US$${cfg.hswOldMinSalaryUsd}, pero itinaas ng DMW ang minimum sa hindi bababa sa US$${cfg.hswMinSalaryUsd} (Advisory 25-2025). May transition period, at sa Gulf ay iniulat na boluntaryo pa ito. Tanungin ang agency mo kung bakit hindi US$${cfg.hswMinSalaryUsd}.`,
+            tl: `Pasok ang ${v} kada buwan sa dating US$${cfg.hswOldMinSalaryUsd}, pero tinaas na ng DMW ang minimum sa at least US$${cfg.hswMinSalaryUsd} (Advisory 25-2025). May transition period pa, at sa Gulf countries ay voluntary pa raw ito. Tanungin ang agency mo kung bakit hindi US$${cfg.hswMinSalaryUsd}.`,
             en: `${v} per month meets the old US$${cfg.hswOldMinSalaryUsd} floor, but DMW raised the minimum to at least US$${cfg.hswMinSalaryUsd} (Advisory 25-2025). There is a transition period, and in the Gulf it has been reported as voluntary. Ask your agency why it isn't US$${cfg.hswMinSalaryUsd}.`,
           },
         }];
       return [{
         ruleId: "salary.ok", severity: "green", evidence: c, citations: [CITATIONS.ADV25_WAGE],
-        title: { tl: "Pasok sa minimum na sahod", en: "Salary meets the DMW minimum" },
-        detail: { tl: `Ang ${v} kada buwan ay hindi bababa sa US$${cfg.hswMinSalaryUsd}.`, en: `${v} per month is at least US$${cfg.hswMinSalaryUsd}.` },
+        title: { tl: "Pasok sa minimum salary", en: "Salary meets the DMW minimum" },
+        detail: { tl: `Ang ${v} kada buwan ay at least US$${cfg.hswMinSalaryUsd}.`, en: `${v} per month is at least US$${cfg.hswMinSalaryUsd}.` },
       }];
     }
   }
@@ -93,15 +93,15 @@ const passportRule: Rule = (cls) => {
     if (has(NEGATION, c))
       out.push({
         ruleId: "passport.protected", severity: "green", evidence: c, citations: [CITATIONS.ADV25_PASSPORT],
-        title: { tl: "Mananatili sa iyo ang pasaporte mo", en: "Your passport stays with you" },
-        detail: { tl: "Tama ito: ayon sa DMW, dapat laging nasa iyo ang pasaporte mo.", en: "Correct: DMW requires your passport to stay with you at all times." },
+        title: { tl: "Sa iyo mananatili ang passport mo", en: "Your passport stays with you" },
+        detail: { tl: "Tama ito: ayon sa DMW, dapat laging nasa iyo ang passport mo.", en: "Correct: DMW requires your passport to stay with you at all times." },
       });
     else
       out.push({
         ruleId: "passport.withheld", severity: "red", evidence: c, citations: [CITATIONS.ADV25_PASSPORT, CITATIONS.SEC_SG_PASSPORT],
-        title: { tl: "Kukunin o itatago ang pasaporte mo", en: "Your passport would be taken or kept" },
+        title: { tl: "Kukunin o itatago ang passport mo", en: "Your passport would be taken or kept" },
         detail: {
-          tl: "Ayon sa DMW, dapat laging nasa iyo ang pasaporte mo. Bawal itong kunin o itago ng employer o recruiter, maliban sa saglit na pag-stamp ng visa, at dapat ibalik agad pagkatapos.",
+          tl: "Ayon sa DMW, dapat laging nasa iyo ang passport mo. Bawal itong kunin o itago ng employer o recruiter. Pwede lang itong hiramin saglit para sa visa stamping, at dapat ibalik agad.",
           en: "DMW requires your passport to stay with you at all times. Employers and recruiters may not take or keep it, except briefly for visa stamping, after which it must be returned promptly.",
         },
       });
@@ -118,15 +118,15 @@ const restDayRule: Rule = (cls) => {
         ruleId: "rest_day.insufficient", severity: "red", evidence: c, citations: [CITATIONS.ADV25_REST_DAY, CITATIONS.SEC_DXB_REST],
         title: { tl: "Kulang ang day off mo", en: "Not enough rest days" },
         detail: {
-          tl: "Dapat may hindi bababa sa isang buong araw ng pahinga bawat linggo. Ang isang day off kada buwan (o wala) ay labag sa Standard Employment Contract.",
+          tl: "Dapat may at least isang buong day off ka kada linggo. Ang isang day off kada buwan (o wala talaga) ay labag sa Standard Employment Contract.",
           en: "You must get at least one full rest day every week. One day off a month (or none) violates the Standard Employment Contract.",
         },
       }];
     if (/\b(?:per|a|every|each|kada|bawat) (?:week|linggo)\b|\bweekly\b/i.test(c))
       return [{
         ruleId: "rest_day.weekly", severity: "green", evidence: c, citations: [CITATIONS.ADV25_REST_DAY],
-        title: { tl: "May lingguhang day off", en: "Weekly rest day included" },
-        detail: { tl: "Tama ito: may isang araw ng pahinga bawat linggo.", en: "Correct: one rest day every week." },
+        title: { tl: "May day off kada linggo", en: "Weekly rest day included" },
+        detail: { tl: "Tama ito: may isang day off kada linggo.", en: "Correct: one rest day every week." },
       }];
   }
   return [];
@@ -139,7 +139,7 @@ const hoursRule: Rule = (cls) => {
     if (rest && parseInt(rest[1]) < 8)
       return [hoursFinding(c, { tl: `${rest[1]} oras lang ang tuloy-tuloy na pahinga mo`, en: `Only ${rest[1]} hours of continuous rest` })];
     if (work && /\b(?:work|duty|duties|trabaho|serve|render)\b/i.test(c) && parseInt(work[1]) > 16)
-      return [hoursFinding(c, { tl: `${work[1]} oras na trabaho bawat araw`, en: `${work[1]} working hours per day` })];
+      return [hoursFinding(c, { tl: `${work[1]} oras na trabaho kada araw`, en: `${work[1]} working hours per day` })];
   }
   return [];
 };
@@ -148,7 +148,7 @@ function hoursFinding(c: string, title: Record<Lang, string>): Finding {
     ruleId: "hours.excessive", severity: "red", evidence: c, citations: [CITATIONS.SEC_DXB_REST],
     title,
     detail: {
-      tl: "Dapat may tuloy-tuloy na pahinga ka na hindi bababa sa 8 oras bawat araw, ayon sa Standard Employment Contract.",
+      tl: "Ayon sa Standard Employment Contract, dapat may at least 8 oras kang tuloy-tuloy na pahinga kada araw.",
       en: "The Standard Employment Contract requires at least 8 hours of continuous rest every day.",
     },
   };
@@ -162,9 +162,9 @@ const placementFeeRule: Rule = (cls) => {
     if (!charged) continue;
     return [{
       ruleId: "fees.placement_fee", severity: "red", evidence: c, citations: [CITATIONS.SEC_SG_FEES, CITATIONS.DMW_GMA_2026],
-      title: { tl: "May sinisingil na placement fee", en: "You are being charged a placement fee" },
+      title: { tl: "Sinisingil ka ng placement fee", en: "You are being charged a placement fee" },
       detail: {
-        tl: "Para sa household service workers, ang employer ang dapat sumagot sa lahat ng gastos sa pag-hire, kasama ang agency fees. Huwag magbayad nang walang lehitimong kontrata at opisyal na resibo.",
+        tl: "Para sa household service workers, ang employer ang dapat magbayad ng lahat ng hiring costs, kasama ang agency fees. Huwag magbayad kung walang valid na contract at official receipt.",
         en: "For household service workers, the employer must shoulder all hiring costs, including agency fees. Never pay without a valid contract and an official receipt.",
       },
     }];
@@ -180,9 +180,9 @@ const deductionRule: Rule = (cls) => {
     if (!/\b(?:fees?|food|meals?|accommodation|lodging|housing|ticket|air ?fare|loan|advance|training|placement|uniform|insurance|visa|medical|pagkain|tirahan|utang)\b/i.test(c)) continue;
     return [{
       ruleId: "salary.deduction", severity: "red", evidence: c, citations: [CITATIONS.SEC_DXB_DEDUCTION, CITATIONS.SEC_SG_FEES],
-      title: { tl: "May kaltas sa sahod mo", en: "Deductions from your salary" },
+      title: { tl: "May kaltas sa salary mo", en: "Deductions from your salary" },
       detail: {
-        tl: "Bawal kaltasan ang sahod mo maliban sa mga kontribusyong itinakda ng batas, at dapat may resibo.",
+        tl: "Bawal kaltasan ang salary mo, maliban sa contributions na required ng batas, at dapat may resibo.",
         en: "Your salary may not be reduced except for legally required contributions, with a receipt.",
       },
     }];
@@ -198,7 +198,7 @@ const lodgingRule: Rule = (cls) => {
     return [{
       ruleId: "costs.food_lodging", severity: "red", evidence: c, citations: [CITATIONS.SEC_DXB_LODGING],
       title: { tl: "Ikaw ang pinagbabayad sa pagkain o tirahan", en: "You are made to pay for food or lodging" },
-      detail: { tl: "Dapat libre ang maayos na tirahan at sapat na pagkain (o food allowance) mula sa employer.", en: "The employer must provide suitable lodging and adequate food (or a food allowance) free of charge." },
+      detail: { tl: "Dapat libre mula sa employer ang maayos na tirahan at sapat na pagkain (o food allowance).", en: "The employer must provide suitable lodging and adequate food (or a food allowance) free of charge." },
     }];
   }
   return [];
@@ -211,8 +211,8 @@ const airfareRule: Rule = (cls) => {
     if (has(NEGATION, c)) continue;
     return [{
       ruleId: "costs.airfare", severity: "red", evidence: c, citations: [CITATIONS.SEC_DXB_TRANSPORT],
-      title: { tl: "Ikaw ang pinagbabayad sa pamasahe", en: "You are made to pay your airfare" },
-      detail: { tl: "Dapat libre ang pamasahe papunta sa trabaho at pauwi pagkatapos ng kontrata.", en: "Transport to the job and back home at the end of the contract must be free." },
+      title: { tl: "Ikaw ang pinagbabayad sa plane ticket", en: "You are made to pay your airfare" },
+      detail: { tl: "Dapat libre ang ticket papunta sa trabaho at pauwi pagkatapos ng contract.", en: "Transport to the job and back home at the end of the contract must be free." },
     }];
   }
   return [];
@@ -225,9 +225,9 @@ const touristVisaRule: Rule = (cls) => {
     if (/\b(?:tourist|visit|visitor|turista)\s*visa\b/i.test(c) && !/\b(?:do not|don't|never|huwag|bawal)\b/i.test(c))
       return [{
         ruleId: "post.tourist_visa", severity: "red", evidence: c, citations: [CITATIONS.DMW_GMA_2026],
-        title: { tl: "Tourist visa ang gagamitin sa trabaho", en: "A tourist visa would be used for work" },
+        title: { tl: "Tourist visa ang gagamitin pang-trabaho", en: "A tourist visa would be used for work" },
         detail: {
-          tl: "Babala ng DMW: huwag tanggapin ang tourist visa para magtrabaho. Dapat employment o working visa ang gamit mo.",
+          tl: "Warning ng DMW: huwag tanggapin ang tourist visa para magtrabaho. Dapat working visa ang gamit mo.",
           en: "DMW warns: never accept a tourist visa for work. You need an employment (working) visa.",
         },
       }];
@@ -240,7 +240,7 @@ const ewalletRule: Rule = (cls) => {
       return [{
         ruleId: "post.ewallet_payment", severity: "red", evidence: c, citations: [CITATIONS.DMW_GCASH_2025],
         title: { tl: "Pinapabayad ka sa GCash o e-wallet", en: "You're asked to pay via GCash or an e-wallet" },
-        detail: { tl: "Ayon sa DMW, red flag ng illegal recruitment ang pagpapabayad sa GCash number.", en: "DMW calls payment to a GCash number a red flag for illegal recruitment." },
+        detail: { tl: "Ayon sa DMW, red flag ng illegal recruitment kapag pinapabayad ka sa isang GCash number.", en: "DMW calls payment to a GCash number a red flag for illegal recruitment." },
       }];
   return [];
 };
@@ -250,8 +250,8 @@ const fixerRule: Rule = (cls) => {
     if (/\b(?:fixers?|no need (?:for )?(?:an? )?agency|walang agency|direct hire,? no agency|travel agency)\b/i.test(c))
       return [{
         ruleId: "post.fixer", severity: "red", evidence: c, citations: [CITATIONS.DMW_FIXERS_2026],
-        title: { tl: "Fixer o walang lisensyadong agency", en: "Fixer or no licensed agency" },
-        detail: { tl: "Babala ng DMW: huwag makipag-transaksyon sa fixer, travel agency, o hindi awtorisadong tao.", en: "DMW warns against fixers, travel agencies, or unauthorised representatives." },
+        title: { tl: "May fixer o walang licensed agency", en: "Fixer or no licensed agency" },
+        detail: { tl: "Warning ng DMW: huwag makipag-deal sa fixer, travel agency, o sa taong hindi authorized.", en: "DMW warns against fixers, travel agencies, or unauthorised representatives." },
       }];
   return [];
 };
@@ -263,7 +263,7 @@ const chatOnlyRule: Rule = (cls, full) => {
       return [{
         ruleId: "post.chat_only", severity: "amber", evidence: c, citations: [CITATIONS.DMW_GMA_2026],
         title: { tl: "Sa chat o social media lang ang usapan", en: "Only through chat or social media" },
-        detail: { tl: "Babala ng DMW: iwasan ang mga nakikipag-transaksyon lang sa Facebook, TikTok, Telegram, o WhatsApp.", en: "DMW warns against recruiters who only deal through Facebook, TikTok, Telegram, or WhatsApp." },
+        detail: { tl: "Warning ng DMW: iwasan ang recruiter na sa Facebook, TikTok, Telegram, o WhatsApp lang nakikipag-deal.", en: "DMW warns against recruiters who only deal through Facebook, TikTok, Telegram, or WhatsApp." },
       }];
   return [];
 };
@@ -273,7 +273,7 @@ const licenseRule: Rule = (_cls, full) => {
   return [{
     ruleId: "post.no_license", severity: "amber", citations: [CITATIONS.DMW_GMA_2026],
     title: { tl: "Walang DMW license number", en: "No DMW license number shown" },
-    detail: { tl: "Tingnan muna kung lisensyado ng DMW ang agency (dmw.gov.ph) bago magbigay ng anumang dokumento o bayad.", en: "Check that the agency is DMW-licensed (dmw.gov.ph) before giving any documents or money." },
+    detail: { tl: "I-check muna sa dmw.gov.ph kung licensed ang agency bago magbigay ng kahit anong documents o bayad.", en: "Check that the agency is DMW-licensed (dmw.gov.ph) before giving any documents or money." },
   }];
 };
 
@@ -303,8 +303,8 @@ export function checkDocument(text: string, kind: DocKind = guessKind(text), cfg
   if (kind === "contract" && !findings.some((f) => f.ruleId.startsWith("salary.")))
     findings.push({
       ruleId: "salary.missing", severity: "amber", citations: [CITATIONS.ADV25_WAGE],
-      title: { tl: "Walang malinaw na sahod", en: "No clear salary stated" },
-      detail: { tl: "Hindi namin makita ang buwanang sahod at currency. Dapat nakasulat ito nang malinaw sa kontrata.", en: "We couldn't find a monthly salary with a currency. It must be written clearly in the contract." },
+      title: { tl: "Walang malinaw na salary", en: "No clear salary stated" },
+      detail: { tl: "Hindi namin makita ang monthly salary at currency. Dapat malinaw itong nakasulat sa contract.", en: "We couldn't find a monthly salary with a currency. It must be written clearly in the contract." },
     });
   return findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity]);
 }

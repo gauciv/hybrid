@@ -68,7 +68,7 @@ export default function Product() {
           </a>
           <div className="k-lang" role="group" aria-label="Wika / Language">
             <button aria-pressed={lang === "tl"} onClick={() => setLang("tl")}>
-              Tagalog
+              Taglish
             </button>
             <button aria-pressed={lang === "en"} onClick={() => setLang("en")}>
               English
@@ -307,8 +307,8 @@ function AirlockSection({ a, setA, lang }: { a: Analysis; setA: (a: Analysis) =>
           <div className="k-field">
             <label htmlFor="k-deep-lang">{t("deepLang")}</label>
             <select id="k-deep-lang" value={deepLang} onChange={(e) => setDeepLang(e.target.value as DeepLang)}>
-              <option value="tl">Tagalog</option>
-              <option value="ceb">Cebuano</option>
+              <option value="tl">Taglish</option>
+              <option value="ceb">Cebuano / Bisaya</option>
               <option value="en">English</option>
             </select>
           </div>
