@@ -217,3 +217,16 @@ describe("security review regressions (round 2)", () => {
     expect(leakGate("Name: [[PERSON_1]]    Age: 29", new Map()).ok).toBe(true);
   });
 });
+
+describe("identifiers never span line breaks", () => {
+  it("a phone at the end of a line does not swallow the next line's clause number", () => {
+    const text = "Mobile No.: +63 917 555 0142\n\n1. The Employer shall pay QAR 1,200.";
+    const { redacted, vault } = redact(text);
+    expect(redacted).toBe("Mobile No.: [[PHONE_1]]\n\n1. The Employer shall pay QAR 1,200.");
+    expect(vault.get("[[PHONE_1]]")).toBe("+63 917 555 0142");
+  });
+  it("numbers on consecutive lines are not merged into one ID", () => {
+    const { redacted } = redact("Clause 12345\n6789 workers");
+    expect(redacted).toBe("Clause 12345\n6789 workers");
+  });
+});

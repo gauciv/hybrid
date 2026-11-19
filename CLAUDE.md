@@ -48,4 +48,10 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   rehydrate, fail-closed `leakGate`. 30-case golden corpus + 5 fast-check properties (500 runs) all pass (`npm test`).
   Nano NER plugs in via `redact(text, entities)`.
   Security-review hardening done (case-insensitive name parts, shape-validated label values). 48 tests pass.
-  **Next:** user enforces App Check for AI Logic → Nano NER layer (on-device JSON entities) → rules engine (needs docs/sources).
+  ✅ App Check ENFORCED for AI Logic (service id `firebaseml.googleapis.com`); no-token request → 401 verified; live site OK.
+  Replay protection = monitoring only (limited-use tokens would burn the 10k/month Fraud Defense free tier per call).
+- Nano NER layer ✓ (`packages/core/src/redact/ner.ts` + `apps/web/src/ai/onDevice.ts`, ONLY_ON_DEVICE + responseConstraint schema,
+  hallucinated entities dropped, chunked). `airlockVerdict()` = safe | needs_review | blocked: **never "safe" unless NER ran fully**
+  (found in browser: gate alone said PASS with unlabeled names visible). Identifier regexes no longer span newlines. 62 tests.
+  Redaction lab panel on live site for TUF testing. Hosting: index no-cache, /assets immutable.
+  **Next:** test NER on TUF → rules engine (needs docs/sources) → real product UI (frontend-design).
