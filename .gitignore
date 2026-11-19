@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.firebase/
+*.log
+.playwright-mcp/
+.DS_Store
+# Android
+*.iml
+.gradle/
+local.properties
+build/
+.idea/
+captures/
+*.apk
+*.aab
+# Firebase App Check debug tokens / service accounts
+*-debug-token*
+serviceAccount*.json
+google-services.json
+# Private, unredacted source material
+docs/sources/private/
