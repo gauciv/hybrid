@@ -236,6 +236,23 @@
   margin: 0.15rem 0 0;
   max-width: 62ch;
 }
+.k-status {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  margin: 0.6rem 0 0;
+  max-width: 62ch;
+}
+.k-samples {
+  align-items: center;
+}
+.k-upload {
+  padding: 0.45rem 0.9rem;
+  font-size: var(--t-sm);
+}
+.k-btn-quiet[aria-busy="true"]::before {
+  border-color: var(--rule);
+  border-top-color: var(--ledger);
+}
 .k-error {
   color: var(--red);
   font-size: var(--t-sm);

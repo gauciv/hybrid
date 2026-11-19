@@ -89,4 +89,9 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
 - Remote Config ✓ (`apps/web/src/config.ts`, template `firebase/remoteconfig.template.json`, deploy `--only remoteconfig`):
   hsw_min_salary_usd 500, hsw_old_min_salary_usd 400, cloud_model. Verified live fetch. Extension uses compiled defaults (offline).
   Working steps reworded (step 1 sounded like scanning the user's device); rotating ring spinner.
-  **Next:** photo/PDF input (on-device multimodal) → write-up + video script → Android only if a supported phone appears (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Photo/PDF input ✓ (`apps/web/src/ai/readDocument.ts`, lazy-loaded): PDF text layer via pdf.js; photo/scanned PDF via
+  Gemini Nano multimodal ONLY_ON_DEVICE (desktop Chrome w/ Nano; untested here, test on TUF) else Tesseract.js OCR in WASM
+  (verified: sample photo read perfectly in 1.5–3 s; network log = only GETs of OCR engine from jsDelivr, image never uploaded).
+  User proofreads extracted text before checking. "Subukan ang sample photo" uses public/samples/sample-contract-photo.png.
+  User has NO supported Android phone.
+  **Next:** decide Android (emulator-only testing) → write-up + video script (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
