@@ -8,7 +8,12 @@ import { PLACEHOLDER_RE, rehydrate } from "../redact/redact";
 import type { Vault } from "../redact/types";
 
 export type DeepLang = "tl" | "ceb" | "en";
-const LANG_NAME: Record<DeepLang, string> = { tl: "Tagalog (Filipino)", ceb: "Cebuano (Bisaya)", en: "simple English" };
+// "tl" is everyday Taglish: in testing, formal/deep Tagalog was harder to understand than English.
+const LANG_NAME: Record<DeepLang, string> = {
+  tl: "everyday Taglish, the way Filipinos text each other: short, simple Tagalog sentences mixed with the common English words people already use (contract, salary, passport, agency, employer, day off, placement fee, visa). Avoid deep or formal Tagalog words",
+  ceb: "everyday Cebuano (Bisaya), simple and conversational, keeping common English words like contract, salary, passport, agency",
+  en: "simple English",
+};
 
 export type ClauseStatus = "ok" | "unclear" | "violates";
 
