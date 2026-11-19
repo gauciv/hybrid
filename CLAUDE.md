@@ -41,10 +41,11 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Arch laptop: Chrome perf class "very low" → no Nano (bypass flag optional). Claude's DevTools Chrome has no Nano either.
   **ASUS TUF (borrowed, perf class Medium, `availability()`="downloadable") = on-device test + demo-filming machine.** Never put credentials on it.
   App Check: debug token registered, stored in `apps/web/.env.development.local` (gitignored; verified absent from prod bundle).
-  **App Check NOT yet enforced** and no reCAPTCHA v3 key yet → user must create key + enforce in console.
+  App Check provider = **reCAPTCHA Enterprise / "Fraud Defense"** (`ReCaptchaEnterpriseProvider`, site key 6LepDSgu…QN8, public).
+  Live site token exchange verified 200 + cloud call OK. Billing verified `billingEnabled: false` via gcloud.
   ✅ TUF on-device verified: ONLY_ON_DEVICE 1517 ms vs cloud 7298 ms (~5× faster). Use in video/write-up.
-  reCAPTCHA v3 site key in `apps/web/src/firebase.ts` (public). Secret must be pasted in console App Check → then verify → then enforce.
 - `packages/core` redaction engine ✓: regex + form-label detectors, vault, partial-name sub-placeholders `[[PERSON_1.2]]`,
   rehydrate, fail-closed `leakGate`. 30-case golden corpus + 5 fast-check properties (500 runs) all pass (`npm test`).
   Nano NER plugs in via `redact(text, entities)`.
-  **Next:** reCAPTCHA v3 (key in project kontrata-hybrid) + enforce App Check → `packages/core` redaction + golden corpus + fast-check PBT.
+  Security-review hardening done (case-insensitive name parts, shape-validated label values). 48 tests pass.
+  **Next:** user enforces App Check for AI Logic → Nano NER layer (on-device JSON entities) → rules engine (needs docs/sources).
