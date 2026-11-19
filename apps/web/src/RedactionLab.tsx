@@ -1,6 +1,6 @@
 // Dev-only panel: run the on-device redaction pipeline on a sample contract and inspect the result.
 import { useState } from "react";
-import { airlockVerdict, leakGate, redact, type AirlockVerdict, type NerResult } from "@kontrata/core";
+import { airlockVerdict, leakGate, redact, type AirlockVerdict, type ExternalEntity, type NerResult } from "@kontrata/core";
 import { initOnDevice, nanoNer } from "./ai/onDevice";
 
 // Fictional sample. Names deliberately appear OUTSIDE labeled fields so only the model can catch them.
@@ -14,10 +14,22 @@ Passport No.: P4829173B   Mobile No.: +63 917 555 0142
 3. Liza shall work 14 hours per day with one rest day per month.
 4. The agency, Golden Hands Manpower Services Inc., charged a placement fee of PHP 45,000.`;
 
+function evaluate(text: string, ner: NerResult & { ms: number }, confirmed: ExternalEntity[]) {
+  const entities = [...ner.entities, ...confirmed];
+  const { redacted, vault } = redact(text, entities);
+  return { redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), { ...ner, entities }, redacted), ner, confirmed };
+}
+
 export default function RedactionLab() {
   const [text, setText] = useState(SAMPLE);
   const [log, setLog] = useState("");
-  const [out, setOut] = useState<{ redacted: string; vault: [string, string][]; verdict: AirlockVerdict; ner: NerResult & { ms: number } } | null>(null);
+  const [out, setOut] = useState<{
+    redacted: string;
+    vault: [string, string][];
+    verdict: AirlockVerdict;
+    ner: NerResult & { ms: number };
+    confirmed: ExternalEntity[];
+  } | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function go() {
@@ -28,8 +40,7 @@ export default function RedactionLab() {
       await initOnDevice((p) => setLog(`Downloading on-device model: ${(p * 100).toFixed(1)}%`)).catch(() => {});
       setLog("Finding names on-device…");
       const ner = await nanoNer(text);
-      const { redacted, vault } = redact(text, ner.entities);
-      setOut({ redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), ner, redacted), ner });
+      setOut(evaluate(text, ner, []));
       setLog("");
     } catch (e) {
       setLog(`Error: ${(e as Error).message}`);
@@ -55,11 +66,20 @@ export default function RedactionLab() {
                   ? "BLOCKED"
                   : out.verdict.reason === "possible_names"
                     ? `REVIEW REQUIRED: possible names left: ${out.verdict.suspects.join(", ")}`
-                    : out.verdict.reason === "unverified_no_names"
-                      ? `REVIEW REQUIRED: model found no people; please check: ${out.verdict.candidates.join(", ")}`
-                      : "REVIEW REQUIRED: names were not fully checked by the on-device model"}
+                    : "REVIEW REQUIRED: names were not fully checked by the on-device model"}
             </strong>
           </p>
+          {out.verdict.kind === "needs_review" && out.verdict.reason === "possible_names" && (
+            <button
+              onClick={() => {
+                if (out.verdict.kind !== "needs_review" || out.verdict.reason !== "possible_names") return;
+                const extra = out.verdict.suspects.map((t) => ({ text: t, type: "PERSON" as const }));
+                setOut(evaluate(text, out.ner, [...out.confirmed, ...extra]));
+              }}
+            >
+              Also redact these
+            </button>
+          )}
           {out.verdict.kind === "blocked" && <pre style={{ color: "crimson" }}>{JSON.stringify(out.verdict.leaks, null, 1)}</pre>}
           <h3 style={{ fontSize: 15 }}>What the cloud would see</h3>
           <pre style={{ whiteSpace: "pre-wrap", background: "#f4f4f4", padding: 12 }}>{out.redacted}</pre>

@@ -11,7 +11,7 @@ describe("security round 4: an injection that silences the model cannot yield 's
     const { redacted, vault } = redact(PLAIN, ner.entities);
     const v = airlockVerdict(leakGate(redacted, vault), ner, redacted);
     expect(v.kind).toBe("needs_review");
-    if (v.kind === "needs_review" && v.reason === "unverified_no_names") expect(v.candidates).toContain("Liza Mendoza");
+    if (v.kind === "needs_review" && v.reason === "possible_names") expect(v.suspects).toContain("Liza Mendoza");
     else throw new Error(`unexpected verdict ${JSON.stringify(v)}`);
   });
 
@@ -72,5 +72,35 @@ Passport No.: P4829173B   Mobile No.: +63 917 555 0142
     for (const fact of ["QAR 1,200", "24 months", "14 hours per day", "one rest day per month", "PHP 45,000", "Golden Hands Manpower Services Inc."])
       expect(redacted).toContain(fact);
     for (const pii of ["Hamad", "Al-Kuwari", "Liza", "Mendoza", "Street 12", "P4829173B", "917 555 0142"]) expect(redacted).not.toContain(pii);
+  });
+});
+
+describe("fixture: second real Nano run on the TUF: model MISSED 'Liza Mendoza' (nondeterminism)", () => {
+  const SAMPLE = `EMPLOYMENT CONTRACT
+This agreement is made between Mr. Hamad Al-Kuwari of Street 12, Al Wakra, Doha (the Employer)
+and Liza Mendoza, a Filipino household service worker (the Worker).
+Passport No.: P4829173B   Mobile No.: +63 917 555 0142
+
+1. The Employer shall pay the Worker a monthly salary of QAR 1,200 for 24 months.
+2. Hamad shall keep the Worker's passport for safekeeping during employment.
+3. Liza shall work 14 hours per day with one rest day per month.
+4. The agency, Golden Hands Manpower Services Inc., charged a placement fee of PHP 45,000.`;
+  const NANO_RUN_2 = [
+    { text: "Hamad Al-Kuwari", type: "PERSON" as const },
+    { text: "Street 12, Al Wakra, Doha", type: "ADDRESS" as const },
+  ];
+  it("the deployed round-4 logic said SAFE here; the always-on scan must flag Liza", () => {
+    const { redacted, vault } = redact(SAMPLE, NANO_RUN_2);
+    expect(redacted).toContain("Liza Mendoza"); // the model really did miss her
+    const v = airlockVerdict(leakGate(redacted, vault), { status: "ok", entities: NANO_RUN_2 }, redacted);
+    expect(v.kind).toBe("needs_review");
+    if (v.kind !== "needs_review" || v.reason !== "possible_names") throw new Error("expected possible_names");
+    expect(v.suspects).toEqual(expect.arrayContaining(["Liza Mendoza", "Liza"]));
+  });
+  it("after the user confirms the suspects, everything is redacted and SAFE", () => {
+    const confirmed = [...NANO_RUN_2, { text: "Liza Mendoza", type: "PERSON" as const }];
+    const { redacted, vault } = redact(SAMPLE, confirmed);
+    expect(redacted).not.toMatch(/Liza|Mendoza/);
+    expect(airlockVerdict(leakGate(redacted, vault), { status: "ok", entities: confirmed }, redacted)).toEqual({ kind: "safe" });
   });
 });
