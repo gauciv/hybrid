@@ -65,4 +65,10 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Redaction lab panel on live site for TUF testing. Hosting: index no-cache, /assets immutable.
   Sources: 3 HSW contracts + RA 8042/10022/11641 in docs/sources (+ .txt). **HSW min salary: US$500 per MC 03-2025
   (new contracts from ~Oct 2025; $400 may persist for older; status after ~Apr 2026 transition UNKNOWN → need official advisory).**
+  User uploaded DMW Advisory 25-2025 + MC 03-2025 (scans; verbatim transcriptions in .txt). Rules from Advisory 25: min ≥US$500,
+  passport stays with worker (exc. visa stamping), ≥1 full rest day/week, mandatory KYE video call, employer pays work-injury care.
+  GCC $500 status conflicting (see rules/HSW-SALARY-STATUS.md) → Red <400, Amber 400–499, Green ≥500 via Remote Config.
+  No real OFW contacts/posts: use Amnesty MDE 23/1197/2026 verbatim testimony (real-samples/testimonies.md; say "published by
+  Amnesty", never "we interviewed") + official DMW red flags + SYNTHETIC labelled posts S1–S4 (real-samples/recruiter-red-flags.md).
+  Pitch line: "the boss is the contract" (Elena, Amnesty p.17); Eliza gave up passport because she didn't know it was not allowed.
   **Next:** speed up NER → rules engine (needs docs/sources) → real product UI (frontend-design).
