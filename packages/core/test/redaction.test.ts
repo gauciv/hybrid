@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { leakGate, redact, rehydrate } from "../src";
+import { airlockVerdict, leakGate, redact, rehydrate } from "../src";
 import { CASES } from "./redaction.cases";
 
 const has = (hay: string, needle: string) => hay.toLowerCase().includes(needle.toLowerCase());
@@ -125,6 +125,16 @@ describe("properties", () => {
       fc.property(contractArb, (r) => {
         const { redacted } = redact(render(r));
         return SAFE_FACTS(r.salary).every((f) => redacted.includes(f));
+      }),
+      { numRuns: 500 },
+    );
+  });
+
+  it("properly redacted contracts are not falsely flagged by the name backstop (no review fatigue)", () => {
+    fc.assert(
+      fc.property(contractArb, (r) => {
+        const { redacted, vault } = redact(render(r));
+        return airlockVerdict(leakGate(redacted, vault), "ok", redacted).kind === "safe";
       }),
       { numRuns: 500 },
     );

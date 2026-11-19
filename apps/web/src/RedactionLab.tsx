@@ -29,7 +29,7 @@ export default function RedactionLab() {
       setLog("Finding names on-device…");
       const ner = await nanoNer(text);
       const { redacted, vault } = redact(text, ner.entities);
-      setOut({ redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), ner.status), ner });
+      setOut({ redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), ner.status, redacted), ner });
       setLog("");
     } catch (e) {
       setLog(`Error: ${(e as Error).message}`);
@@ -49,7 +49,13 @@ export default function RedactionLab() {
             Model layer: <strong>{out.ner.status}</strong> ({out.ner.entities.length} entities, {out.ner.chunks} chunk(s),{" "}
             {out.ner.ms} ms) · Airlock:{" "}
             <strong style={{ color: { safe: "green", needs_review: "darkorange", blocked: "crimson" }[out.verdict.kind] }}>
-              {{ safe: "SAFE to send", needs_review: "REVIEW REQUIRED: names were not checked by the on-device model", blocked: "BLOCKED" }[out.verdict.kind]}
+              {out.verdict.kind === "safe"
+                ? "SAFE to send"
+                : out.verdict.kind === "blocked"
+                  ? "BLOCKED"
+                  : out.verdict.reason === "possible_names"
+                    ? `REVIEW REQUIRED: possible names left: ${out.verdict.suspects.join(", ")}`
+                    : "REVIEW REQUIRED: names were not fully checked by the on-device model"}
             </strong>
           </p>
           {out.verdict.kind === "blocked" && <pre style={{ color: "crimson" }}>{JSON.stringify(out.verdict.leaks, null, 1)}</pre>}
