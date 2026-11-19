@@ -1,0 +1,42 @@
+/* Side panel is ~360px wide: tighter spacing, same tokens as the web app. */
+.k-panel .k-wrap {
+  padding: 0 1rem;
+}
+.k-panel .k-composer textarea {
+  min-height: 8rem;
+  font-size: 0.95rem;
+}
+.k-panel .k-privacy {
+  margin: 0.9rem 0 0;
+}
+.k-panel-intro {
+  padding: 1.5rem 0 1rem;
+}
+.k-panel-intro h1 {
+  font-size: 1.3rem;
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.5rem;
+}
+.k-panel-intro p {
+  margin: 0;
+  color: var(--ink-2);
+}
+.k-panel .k-verdict {
+  padding: 1.75rem 0 1rem;
+}
+.k-panel .k-finding h2 {
+  font-size: 1.1rem;
+}
+.k-panel-full {
+  padding: 1.5rem 0 0;
+}
+.k-panel-full p {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  margin: 0.6rem 0 0;
+}
+.k-panel .k-footer {
+  margin-top: 2.5rem;
+}
