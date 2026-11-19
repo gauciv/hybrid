@@ -76,4 +76,8 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   salary (USD conversion, Remote-Config-ready thresholds), passport, rest day, hours, placement fee, deductions, food/lodging,
   airfare; post rules: tourist visa, GCash/e-wallet, fixer, chat-only, no license. Trust test: official SECs → zero red flags.
   Works identically on redacted text. 118 tests.
-  **Next:** cloud deep check (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Cloud deep check ✓ (`packages/core/src/cloud/deepCheck.ts`, `apps/web/src/ai/cloud.ts`, ONLY_IN_CLOUD gemini-3.5-flash-lite, JSON schema):
+  whole outbound prompt re-gated; output validated + rehydrated on-device. Live E2E (no Nano → scan suspects → "Also redact these"
+  → confirm review → send): natural Tagalog, 4/4 correct citations, 8.9 s, 0 dropped. Review verdicts always carry scan suspects.
+  Offline findings shown in Tagalog in lab. 132 tests.
+  **Next:** real product UI (frontend-design skill) replacing the lab → Chrome extension → Remote Config thresholds (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
