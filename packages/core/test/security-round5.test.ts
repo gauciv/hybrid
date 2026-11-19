@@ -44,3 +44,14 @@ Name of Worker: Ana Reyes
     expect(await verdictFor(doc, [{ text: "Ana Reyes", type: "PERSON" }])).toEqual({ kind: "safe" });
   });
 });
+
+describe("security round 6: org suffix must be a real, capitalised suffix", () => {
+  it("a lowercase noun after a name does not make it an organisation", async () => {
+    const v = await verdictFor("Contact Liza Mendoza services for details.", []);
+    expect(v.kind).toBe("needs_review");
+  });
+  it("real organisation names still pass (no review fatigue)", async () => {
+    for (const org of ["Golden Hands Manpower Services Inc.", "Al Noor Cleaning Co.", "Bright Star Recruitment Agency"])
+      expect(await verdictFor(`The agency is ${org} in Manila.`, [])).toEqual({ kind: "safe" });
+  });
+});
