@@ -258,3 +258,20 @@ describe("OCR output: fields separated by a single space (regression from a real
     expect([...vault.values()].join(" ")).not.toContain("Riyadh");
   });
 });
+
+describe("security review: labelled IDs with leading words are not dropped", () => {
+  it.each([
+    ["Bank Account: BDO SA 12345678", "12345678"],
+    ["Account No.: Savings 0012345678 at BPI", "0012345678"],
+    ["Passport No.: PH P1234567A", "P1234567A"],
+    ["Iqama No: ID 2456789 issued in Riyadh", "2456789"],
+  ])("%s → %s is redacted", (input, id) => {
+    const { redacted, vault } = redact(input);
+    expect(redacted).not.toContain(id);
+    expect(leakGate(redacted, vault).ok).toBe(true);
+  });
+  it("still stops at the first word after the number", () => {
+    const { vault } = redact("Account No.: Savings 0012345678 at BPI");
+    expect([...vault.values()].join(" ")).not.toContain("BPI");
+  });
+});
