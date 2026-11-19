@@ -58,8 +58,11 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Round 4: per-call random nonce fence. Round 5: model-free `nameLikePhrases()` scan ALWAYS runs on the outbound payload
   (Title Case + ALL CAPS phrases, "<Name> shall", org-suffix only if it ends the word) + big contract-vocabulary allowlist.
   **Nano is nondeterministic:** 2nd TUF run found 4/5 (missed "Liza Mendoza") → old logic said SAFE; new logic flags it.
-  Lab has "Also redact these" (human-in-the-loop confirm). 87 tests. Warm NER time on TUF ≈ 18.6 s (too slow → optimise).
+  Lab has "Also redact these" (human-in-the-loop confirm). Org suffix case-sensitive. 89 tests. See docs/THREAT-MODEL.md
+  (realistic risk = accidental model misses; injection gains attacker nothing → avoid review-fatigue heuristics). Warm NER time on TUF ≈ 18.6 s (too slow → optimise).
   ✅ **Real Nano run on TUF: 5/5 entities (incl. unlabeled names + address), verdict SAFE, facts preserved. 23.8 s cold**
   (check warm time; optimise if still slow). Saved as regression fixture in `test/security-round4.test.ts`.
   Redaction lab panel on live site for TUF testing. Hosting: index no-cache, /assets immutable.
+  Sources: 3 HSW contracts + RA 8042/10022/11641 in docs/sources (+ .txt). **HSW min salary: US$500 per MC 03-2025
+  (new contracts from ~Oct 2025; $400 may persist for older; status after ~Apr 2026 transition UNKNOWN → need official advisory).**
   **Next:** speed up NER → rules engine (needs docs/sources) → real product UI (frontend-design).

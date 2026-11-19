@@ -71,7 +71,10 @@ const COMMON = new Set(
     "makati pasay taguig metro middle east asia al el"
   ).split(/\s+/),
 );
-const ORG_SUFFIX_WORD = /^(?:Inc|Corp|Corporation|Co|Company|LLC|Ltd|Services|Agency|Manpower|Recruitment|International|Group|Holdings|Trading)\.?$/i;
+// Case-sensitive on purpose: "Services" ends an organisation name, lowercase "services" is just a noun.
+const ORG_SUFFIX_WORD = /^(?:Inc|Corp|Corporation|Co|Company|LLC|Ltd|Services|Agency|Manpower|Recruitment|International|Group|Holdings|Trading)\.?$/;
+// A suffix that FOLLOWS a phrase must be a legal-entity marker ("… Mendoza Inc."), not any org-ish word.
+const LEGAL_SUFFIX = /^(?:Inc|Corp|Co|Ltd|LLC)\.?,?$/;
 const WORD = String.raw`(?:\p{Lu}\p{Ll}+|\p{Lu}{2,})`;
 const CAP_PHRASE = new RegExp(String.raw`${WORD}(?:[ -]${WORD})+`, "gu");
 const SUBJECT = /(?<![\p{L}])(\p{Lu}\p{Ll}{2,})\s+(?:shall|will|must|agrees?|is|has|may)\b/gu;
@@ -89,7 +92,7 @@ export function nameLikePhrases(payload: string): string[] {
     const next = rest.match(/^[.,]?\s*(\S+)/)?.[1] ?? "";
     const isOrg =
       (ORG_SUFFIX_WORD.test(words[words.length - 1]) && endsWord) ||
-      (ORG_SUFFIX_WORD.test(next.replace(/[.,]$/, "")) && !/-/.test(next));
+      LEGAL_SUFFIX.test(next);
     if (isOrg) continue;
     const unknown = words.filter((w) => !isCommon(w));
     if (unknown.length) out.add(m[0]);
