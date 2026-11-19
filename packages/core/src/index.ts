@@ -12,3 +12,5 @@ export type { Finding, Severity, Lang, RulesConfig, DocKind } from "./rules/engi
 export { CITATIONS } from "./rules/sources";
 export type { Citation, CitationId } from "./rules/sources";
 export { findAmounts, toUsd, DEFAULT_RATES } from "./rules/money";
+export { buildDeepCheckPrompt, parseDeepCheck, DEEP_CHECK_SCHEMA } from "./cloud/deepCheck";
+export type { DeepCheckResult, DeepClause, DeepLang, ClauseStatus } from "./cloud/deepCheck";

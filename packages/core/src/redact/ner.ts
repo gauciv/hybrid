@@ -2,7 +2,6 @@
 // The model never sees anything that leaves the device: this runs before the Airlock.
 // Model output is untrusted: every entity must literally occur in the source text.
 import type { ExternalEntity, PiiType } from "./types";
-import { isCommon } from "./suspects";
 
 export const NER_TYPES = ["PERSON", "ADDRESS", "PHONE", "EMAIL", "ID_NUMBER"] as const satisfies readonly PiiType[];
 export type NerType = (typeof NER_TYPES)[number];
@@ -39,11 +38,22 @@ export interface NerOptions {
 const ADDRESS_CUE = /\b(?:street|st\.|road|rd\.|avenue|ave\.|blvd|brgy|barangay|purok|sitio|villa|block|blk|lot|building|bldg|tower|floor|apartment|apt|district|compound|subdivision|village|zone)\b/i;
 const CAP_WORD = /(?:\p{Lu}\p{Ll}+|\p{Lu}{2,})/gu;
 
-/** Lines worth showing the model: a capitalised word that isn't contract vocabulary, or an address cue. */
+// Deliberately SMALL and SEPARATE from the backstop's vocabulary (suspects.ts), so the line filter and the
+// model-free name scan never share a blind spot. No months, places, or other words that double as names.
+const STRUCTURE = new Set(
+  ("the this that these a an and or of for to in on at by with from as be is are shall will must may not no " +
+    "employer employers employee employees worker workers agency agreement contract employment standard household " +
+    "service services domestic section article clause annex schedule page name address passport contact mobile tel " +
+    "phone number email salary wage wages monthly hours rest day days week weeks month months year years " +
+    "terms conditions party parties signature witness date philippine philippines filipino dmw poea owwa usd sar aed " +
+    "qar kwd bhd omr hkd sgd php").split(" "),
+);
+
+/** Lines worth showing the model: any capitalised word outside basic contract structure, or an address cue. */
 export function selectNerLines(text: string): string {
   return text
     .split("\n")
-    .filter((line) => ADDRESS_CUE.test(line) || [...line.matchAll(CAP_WORD)].some((m) => !isCommon(m[0])))
+    .filter((line) => ADDRESS_CUE.test(line) || [...line.matchAll(CAP_WORD)].some((m) => !STRUCTURE.has(m[0].toLowerCase())))
     .join("\n");
 }
 
@@ -94,7 +104,8 @@ export function parseNerLines(raw: string, source: string): { ok: boolean; entit
   const asJson = { entities: [] as { text: string; type: string }[] };
   for (const l of lines) {
     const m = l.match(/^([A-Z_]+)\s*[|:]\s*(.+)$/);
-    if (m) asJson.entities.push({ type: m[1], text: m[2].replace(/^["'“”]|["'“”]$/g, "") });
+    // Only lines with a known type count as an answer; "NOTE: …" or prose is not.
+    if (m && (NER_TYPES as readonly string[]).includes(m[1])) asJson.entities.push({ type: m[1], text: m[2].replace(/^["'“”]|["'“”]$/g, "") });
   }
   if (!asJson.entities.length) return { ok: false, entities: [] };
   return parseNerResponse(JSON.stringify(asJson), source);
@@ -149,6 +160,8 @@ export function parseNerResponse(raw: string, source: string): { ok: boolean; en
     seen.add(key);
     out.push({ text, type: e.type as PiiType });
   }
+  // The model claimed entities but none exist in the document: it is misbehaving, so this chunk is unverified.
+  if (list.length > 0 && out.length === 0) return { ok: false, entities: [] };
   return { ok: true, entities: out };
 }
 
