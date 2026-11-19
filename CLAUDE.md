@@ -34,5 +34,12 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
 ## Status log
 - 2026-11-19: Spec + sources checklist + LICENSE pushed to https://github.com/gauciv/hybrid. `firebase login` done.
   MCPs connected: firebase, chrome-devtools, mobile, context7, playwright.
-  **Next:** check Nano availability on laptop → create Firebase project (Spark) → App Check (reCAPTCHA v3 + debug token)
-  → hybrid hello-world showing which tier answered → start `packages/core` redaction + golden corpus + fast-check PBT.
+- 2026-11-19 (later): Firebase project `kontrata-hybrid` (Spark) + web app + AI Logic provisioned (Gemini Developer API).
+  Hybrid lab page (`apps/web/src/App.tsx`) deployed to https://kontrata-hybrid.web.app. Cloud path ✓, PREFER_ON_DEVICE→cloud fallback ✓.
+  Facts learned: SDK firebase@13.4 · `response.inferenceSource` = "on_device" | "in_cloud" · `initializeDeviceModel()` needs a user click ·
+  default cloud model `gemini-3.5-flash-lite` · **on-device output languages = de, en, es, fr, ja only (no Tagalog)**.
+  Arch laptop: Chrome perf class "very low" → no Nano (bypass flag optional). Claude's DevTools Chrome has no Nano either.
+  **ASUS TUF (borrowed, perf class Medium, `availability()`="downloadable") = on-device test + demo-filming machine.** Never put credentials on it.
+  App Check: debug token registered, stored in `apps/web/.env.development.local` (gitignored; verified absent from prod bundle).
+  **App Check NOT yet enforced** and no reCAPTCHA v3 key yet → user must create key + enforce in console.
+  **Next:** verify on-device on TUF → reCAPTCHA v3 + enforce App Check → `packages/core` redaction + golden corpus + fast-check PBT.

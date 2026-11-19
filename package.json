@@ -1,0 +1,11 @@
+{
+  "name": "kontrata",
+  "private": true,
+  "license": "Apache-2.0",
+  "workspaces": ["packages/*", "apps/web"],
+  "scripts": {
+    "dev": "npm -w apps/web run dev",
+    "build": "npm -w apps/web run build",
+    "test": "npm -w packages/core test"
+  }
+}
