@@ -80,4 +80,6 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   whole outbound prompt re-gated; output validated + rehydrated on-device. Live E2E (no Nano → scan suspects → "Also redact these"
   → confirm review → send): natural Tagalog, 4/4 correct citations, 8.9 s, 0 dropped. Review verdicts always carry scan suspects.
   Offline findings shown in Tagalog in lab. 132 tests.
-  **Next:** real product UI (frontend-design skill) replacing the lab → Chrome extension → Remote Config thresholds (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Product UI ✓ (`apps/web/src/product/`): dignified ink-on-paper design per docs/DESIGN.md (user brief: dignified, calm,
+  professional, no AI slop). Tagalog/English UI, Cebuano explanations. Lab moved to /#lab. Verified desktop + 390px mobile.
+  **Next:** Chrome extension → Remote Config thresholds → write-up/video (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
