@@ -92,3 +92,13 @@ describe("synthetic recruiter posts S1–S4 (docs/sources/real-samples/recruiter
     expect(r.filter((f) => f.severity !== "green")).toEqual([]);
   });
 });
+
+describe("posts flattened by right-click selection (no newlines)", () => {
+  const flat = "🔥URGENT HIRING🔥 DH for DUBAI ✅ Salary 1,500 AED ✅ Direct employer, NO NEED AGENCY ✅ Tourist visa muna, convert pagdating. Processing fee ₱25,000 lang, send via GCash 0917-000-1234. PM agad!";
+  it("splits on bullet emoji so evidence stays short and specific", () => {
+    const r = checkDocument(flat, "post");
+    const visa = r.find((f) => f.ruleId === "post.tourist_visa")!;
+    expect(visa.evidence).toBe("Tourist visa muna, convert pagdating.");
+    expect(reds(r)).toEqual(expect.arrayContaining(["post.tourist_visa", "post.ewallet_payment", "post.fixer", "fees.placement_fee"]));
+  });
+});

@@ -83,4 +83,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
 - Product UI ✓ (`apps/web/src/product/`): dignified ink-on-paper design per docs/DESIGN.md (user brief: dignified, calm,
   professional, no AI slop). Tagalog/English UI, Cebuano explanations. Lab moved to /#lab. Verified desktop + 390px mobile.
   **User testing: formal Tagalog was harder to read than English → all Filipino copy is everyday Taglish** (UI, rules, deep check).
-  **Next:** Chrome extension → Remote Config thresholds → write-up/video (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Chrome extension ✓ (`apps/extension`, MV3, side panel + right-click "I-check sa Kontrata"): offline core rules + redaction,
+  NO network code (verified bundle), hand-off to web app via `#check=` fragment (cleared on load). Note: extension counts within
+  the Web/Chrome category; hackathon "multi-platform" = Android/iOS. Install: `npm run build:ext`, load unpacked apps/extension/dist.
+  **Next:** Remote Config thresholds → write-up/video (Android only if a supported phone appears) (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).

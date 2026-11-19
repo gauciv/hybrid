@@ -29,6 +29,8 @@ export const DEFAULT_RULES_CONFIG: RulesConfig = { hswMinSalaryUsd: 500, hswOldM
 export function clauses(text: string): string[] {
   return text
     .split(/\n+/)
+    // Recruiter posts use bullets/emoji as line breaks, and right-click selections lose real newlines.
+    .flatMap((l) => l.split(/\s*(?:✅|☑️|✔️?|•|●|▪️?|➡️|👉|📌|🔥)\s*/u))
     .flatMap((l) => l.split(/(?<=[.;!?])\s+(?=[A-Z0-9("“])/))
     .map((c) => c.trim())
     .filter((c) => c.length > 2);

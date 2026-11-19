@@ -22,3 +22,4 @@ serviceAccount*.json
 google-services.json
 # Private, unredacted source material
 docs/sources/private/
+apps/extension/*.zip

@@ -2,10 +2,15 @@
   "name": "kontrata",
   "private": true,
   "license": "Apache-2.0",
-  "workspaces": ["packages/*", "apps/web"],
+  "workspaces": [
+    "packages/*",
+    "apps/web",
+    "apps/extension"
+  ],
   "scripts": {
     "dev": "npm -w apps/web run dev",
     "build": "npm -w apps/web run build",
-    "test": "npm -w packages/core test"
+    "test": "npm -w packages/core test",
+    "build:ext": "npm -w apps/extension run build"
   }
 }
