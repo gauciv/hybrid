@@ -86,4 +86,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
 - Chrome extension ✓ (`apps/extension`, MV3, side panel + right-click "I-check sa Kontrata"): offline core rules + redaction,
   NO network code (verified bundle), hand-off to web app via `#check=` fragment (cleared on load). Note: extension counts within
   the Web/Chrome category; hackathon "multi-platform" = Android/iOS. Install: `npm run build:ext`, load unpacked apps/extension/dist.
-  **Next:** Remote Config thresholds → write-up/video (Android only if a supported phone appears) (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Remote Config ✓ (`apps/web/src/config.ts`, template `firebase/remoteconfig.template.json`, deploy `--only remoteconfig`):
+  hsw_min_salary_usd 500, hsw_old_min_salary_usd 400, cloud_model. Verified live fetch. Extension uses compiled defaults (offline).
+  Working steps reworded (step 1 sounded like scanning the user's device); rotating ring spinner.
+  **Next:** photo/PDF input (on-device multimodal) → write-up + video script → Android only if a supported phone appears (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).

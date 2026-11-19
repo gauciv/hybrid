@@ -294,7 +294,7 @@ function AirlockSection({ a, setA, lang }: { a: Analysis; setA: (a: Analysis) =>
               <option value="en">English</option>
             </select>
           </div>
-          <button className="k-btn" disabled={!canSend || busy} onClick={explain}>
+          <button className="k-btn" disabled={!canSend || busy} aria-busy={busy} onClick={explain}>
             {busy ? t("explaining") : t("explain")}
           </button>
         </div>

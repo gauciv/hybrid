@@ -14,6 +14,7 @@ import {
   type Vault,
 } from "@kontrata/core";
 import { initOnDevice, nanoNer } from "../ai/onDevice";
+import { rulesConfig } from "../config";
 
 export interface Analysis {
   text: string;
@@ -70,7 +71,7 @@ export function evaluate(text: string, ner: NerResult & { ms: number }, confirme
     vault,
     verdict: airlockVerdict(leakGate(redacted, vault), { ...ner, entities }, redacted),
     // Rules run on the REDACTED text: identical results (tested), and nothing private is needed.
-    findings: checkDocument(redacted, kind),
+    findings: checkDocument(redacted, kind, rulesConfig()),
   };
 }
 

@@ -1,6 +1,6 @@
 // Cloud-only calls. They only ever receive REDACTED text that passed the Airlock (leak gate + verdict).
 // ONLY_IN_CLOUD: Gemini Nano cannot write Tagalog/Cebuano, and the input is already anonymous.
-import { getGenerativeModel, InferenceMode } from "firebase/ai";
+import { getGenerativeModel, InferenceMode, type GenerativeModel } from "firebase/ai";
 import {
   buildDeepCheckPrompt,
   DEEP_CHECK_SCHEMA,
@@ -12,11 +12,22 @@ import {
   type Vault,
 } from "@kontrata/core";
 import { ai } from "../firebase";
+import { cloudModelName, configReady } from "../config";
 
-const deepModel = getGenerativeModel(ai, {
+const models = new Map<string, GenerativeModel>();
+const deepModel = (name: string) => {
+  let m = models.get(name);
+  if (!m) {
+    m = makeModel(name);
+    models.set(name, m);
+  }
+  return m;
+};
+
+const makeModel = (name: string) => getGenerativeModel(ai, {
   mode: InferenceMode.ONLY_IN_CLOUD,
   inCloudParams: {
-    model: "gemini-3.5-flash-lite",
+    model: name,
     generationConfig: {
       responseMimeType: "application/json",
       // Plain JSON schema object; the SDK forwards it as responseSchema.
@@ -39,7 +50,8 @@ export async function deepCheck(redacted: string, vault: Vault, findings: Findin
   const gate = leakGate(prompt, vault);
   if (!gate.ok) throw new Error(`Blocked by the Airlock: ${gate.leaks.map((l) => l.type).join(", ")}`);
   const t0 = performance.now();
-  const res = await deepModel.generateContent(prompt);
+  await configReady; // model name may come from Remote Config
+  const res = await deepModel(cloudModelName()).generateContent(prompt);
   return {
     result: parseDeepCheck(res.response.text(), redacted, vault),
     sentPrompt: prompt,
