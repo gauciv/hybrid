@@ -13,6 +13,7 @@ import {
 } from "@kontrata/core";
 import { ai } from "../firebase";
 import { cloudModelName, configReady } from "../config";
+import { fingerprint, session } from "../cache";
 
 const models = new Map<string, GenerativeModel>();
 const deepModel = (name: string) => {
@@ -42,6 +43,7 @@ export interface DeepCheckRun {
   sentPrompt: string; // exactly what left the device, shown in the Airlock panel
   ms: number;
   source: string;
+  cached: boolean;
 }
 
 export async function deepCheck(redacted: string, vault: Vault, findings: Finding[], lang: DeepLang): Promise<DeepCheckRun> {
@@ -51,11 +53,20 @@ export async function deepCheck(redacted: string, vault: Vault, findings: Findin
   if (!gate.ok) throw new Error(`Blocked by the Airlock: ${gate.leaks.map((l) => l.type).join(", ")}`);
   const t0 = performance.now();
   await configReady; // model name may come from Remote Config
-  const res = await deepModel(cloudModelName()).generateContent(prompt);
-  return {
-    result: parseDeepCheck(res.response.text(), redacted, vault),
-    sentPrompt: prompt,
-    ms: Math.round(performance.now() - t0),
-    source: res.response.inferenceSource ?? "unknown",
-  };
+  const model = cloudModelName();
+  // The response only contains placeholders, never real data, so it may be cached for this tab session.
+  const key = `k-deep:${await fingerprint(`${model}\n${prompt}`)}`;
+  const cachedRaw = session.get(key);
+  if (cachedRaw) {
+    try {
+      return { result: parseDeepCheck(cachedRaw, redacted, vault), sentPrompt: prompt, ms: 0, source: "in_cloud", cached: true };
+    } catch {
+      /* corrupt entry: fetch again */
+    }
+  }
+  const res = await deepModel(model).generateContent(prompt);
+  const raw = res.response.text();
+  const result = parseDeepCheck(raw, redacted, vault); // throws on unusable output → not cached
+  session.set(key, raw);
+  return { result, sentPrompt: prompt, ms: Math.round(performance.now() - t0), source: res.response.inferenceSource ?? "unknown", cached: false };
 }

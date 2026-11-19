@@ -117,6 +117,10 @@ const LABEL_RE = (() => {
 // Bare "Name:" but not "Company Name:", "Agency Name:", "Name of Agency:", "Business Name:" etc.
 const BARE_NAME_RE = /(?<!(?:company|agency|business|establishment|bank|hospital|school|vessel|trade|brand|file|user)\s)(?<![A-Za-z])name\s*[:：][^\S\r\n]*([^\n;|]{1,120})/gi;
 
+// Labels that commonly follow another field on the same line in forms (matched after a single space).
+const NEXT_FORM_LABEL =
+  /\s+(?:Age|Sex|Gender|Civil Status|Status|Date of Birth|Birthdate|Date|Mobile(?: No)?|Contact(?: No| Number)?|Tel(?: No)?|Telephone|Phone|E-?mail|Passport(?: No| Number)?|Address|Nationality|Religion|Position|Salary|Height|Weight|Place of Birth)\.?\s*(?:No\.?|#)?\s*[:：]/i;
+
 const ID_TYPES = new Set<PiiType>(["PASSPORT", "GOV_ID", "BANK", "PHONE", "EMAIL", "ID_NUMBER"]);
 
 /** Clean a captured form value: drop blanks like "______", trailing punctuation, and trailing context. */
@@ -126,11 +130,21 @@ function cleanValue(raw: string, type: PiiType): { offset: number; text: string 
   //    how it starts; we keep looking at whatever real text follows.
   const lead = raw.match(/^(?:[\s,.;:]+|\([^()\n]{0,40}\)|\[\[[A-Z_]+_[\d.]+\]\])*/)![0];
   let v = raw.slice(lead.length);
+  // A known form label later on the same line ends this value, even after a single space (common in OCR output).
+  const nextKnown = v.search(NEXT_FORM_LABEL);
+  if (nextKnown > 0) v = v.slice(0, nextKnown);
   // 2. The remainder is another field ("Age: 29"), not this field's value.
   if (/^[A-Z][A-Za-z'’]*(?: [A-Za-z'’]+){0,3}\.?\s*[:：]/.test(v)) return null;
-  // 3. Cut at the next "Label:" on the same line (e.g. "Name: Maria Santos   Age: 34").
+  // 3. Cut at the next "Label:" on the same line (e.g. "Name: Maria Santos   Age: 34"). OCR often collapses the
+  //    gap to a single space, so common form labels are also recognised after one space.
   const nextLabel = v.search(/\s{2,}[A-Z][A-Za-z' ]{1,30}\s*[:：]|\t/);
   if (nextLabel > 0) v = v.slice(0, nextLabel);
+  // Identifiers have no words in them: stop at the first word of 2+ letters after a space
+  // ("P4829173B Mobile …" → "P4829173B", "2456789012 issued in Riyadh" → "2456789012").
+  if (ID_TYPES.has(type) && type !== "EMAIL") {
+    const id = v.match(/^\+?[\p{L}\d(][\p{L}\d ()\-./]*?(?=\s+\p{L}{2,}(?![\p{L}\d]*\d)|$)/u);
+    if (id) v = id[0];
+  }
   // 4. Identifiers are a single token: "EB7654321, issued Manila" → "EB7654321".
   //    Names stop before a parenthetical or a non-name continuation: "Pedro Santos (husband), +63…".
   const cut =

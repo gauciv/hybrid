@@ -3,8 +3,7 @@ import type { DeepLang, Severity } from "@kontrata/core";
 import { deepCheck, type DeepCheckRun } from "../ai/cloud";
 import { coverSuspects, evaluate, findPeopleOnDevice, type Analysis } from "./pipeline";
 import { T, type UiLang } from "./i18n";
-import { SAMPLE_CONTRACT, SAMPLE_POST } from "./samples";
-import type { ReadMethod } from "../ai/readDocument";
+import Composer from "./Composer";
 import { BrandMark, FindingItem, LockIcon, Redacted, SeverityMark, VaultRow } from "./components";
 import "./product.css";
 
@@ -36,30 +35,6 @@ export default function Product() {
   const [phase, setPhase] = useState<Phase>("input");
   const [step, setStep] = useState(1);
   const [a, setA] = useState<Analysis | null>(null);
-  const [inputError, setInputError] = useState(false);
-  const [reading, setReading] = useState<string | null>(null); // status text while a file is being read
-  const [readNote, setReadNote] = useState<{ ok: boolean; method?: ReadMethod } | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  async function onFile(file: File | undefined) {
-    if (!file) return;
-    setReadNote(null);
-    setReading(T.readingPdf[lang]);
-    try {
-      const { readDocument } = await import("../ai/readDocument");
-      const r = await readDocument(file, (stage, f) =>
-        setReading(stage === "pdf" ? T.readingPdf[lang] : stage === "nano" ? T.readingNano[lang] : T.readingOcr[lang](Math.round((f ?? 0) * 100))),
-      );
-      if (!r.text.trim()) throw new Error("empty");
-      setText(r.text);
-      setReadNote({ ok: true, method: r.method });
-    } catch {
-      setReadNote({ ok: false });
-    } finally {
-      setReading(null);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
   const t = <K extends keyof typeof T>(k: K) => (T[k] as Record<UiLang, never>)[lang];
 
   useEffect(() => {
@@ -72,11 +47,6 @@ export default function Product() {
   }, [lang]);
 
   async function analyse() {
-    if (!text.trim()) {
-      setInputError(true);
-      return;
-    }
-    setInputError(false);
     setPhase("working");
     setStep(1);
     const ner = await findPeopleOnDevice(text);
@@ -121,66 +91,7 @@ export default function Product() {
               <h1 className="k-title">{t("tagline")}</h1>
               <p className="k-lede">{t("intro")}</p>
             </section>
-            <div className="k-composer">
-              <label htmlFor="k-text">{t("inputLabel")}</label>
-              <textarea
-                id="k-text"
-                value={text}
-                onChange={(e) => (setText(e.target.value), setReadNote((n) => (n?.ok ? n : null)))}
-                placeholder={t("placeholder")}
-                spellCheck={false}
-                aria-describedby="k-privacy"
-              />
-              <div className="k-composer-bar">
-                <div className="k-samples">
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*,application/pdf"
-                    hidden
-                    onChange={(e) => onFile(e.target.files?.[0])}
-                  />
-                  <button className="k-btn k-btn-quiet k-upload" disabled={!!reading} aria-busy={!!reading} onClick={() => fileRef.current?.click()}>
-                    {t("upload")}
-                  </button>
-                  <button className="k-link" onClick={() => setText(SAMPLE_CONTRACT)}>
-                    {t("useSample")}
-                  </button>
-                  <button className="k-link" onClick={() => setText(SAMPLE_POST)}>
-                    {t("useSamplePost")}
-                  </button>
-                  <button
-                    className="k-link"
-                    disabled={!!reading}
-                    onClick={async () => {
-                      // A fictional contract, as an image, to try photo reading (on-device AI or local OCR).
-                      const blob = await (await fetch("/samples/sample-contract-photo.png")).blob();
-                      onFile(new File([blob], "sample-contract-photo.png", { type: "image/png" }));
-                    }}
-                  >
-                    {t("useSamplePhoto")}
-                  </button>
-                </div>
-                <button className="k-btn" onClick={analyse} disabled={!!reading}>
-                  {t("check")}
-                </button>
-              </div>
-            </div>
-            {reading && (
-              <p className="k-status" role="status">
-                {reading}
-              </p>
-            )}
-            {readNote && (
-              <p className={readNote.ok ? "k-status" : "k-error"} role={readNote.ok ? "status" : "alert"}>
-                {readNote.ok && readNote.method ? T.readDone[readNote.method][lang] : t("readFailed")}
-              </p>
-            )}
-            {inputError && (
-              <p className="k-error" role="alert">
-                {t("emptyInput")}
-              </p>
-            )}
+            <Composer lang={lang} text={text} setText={setText} onCheck={analyse} />
             <div className="k-privacy" id="k-privacy">
               <LockIcon />
               <div>
