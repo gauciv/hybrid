@@ -139,11 +139,20 @@ function cleanValue(raw: string, type: PiiType): { offset: number; text: string 
   //    gap to a single space, so common form labels are also recognised after one space.
   const nextLabel = v.search(/\s{2,}[A-Z][A-Za-z' ]{1,30}\s*[:：]|\t/);
   if (nextLabel > 0) v = v.slice(0, nextLabel);
-  // Identifiers have no words in them: stop at the first word of 2+ letters after a space
-  // ("P4829173B Mobile …" → "P4829173B", "2456789012 issued in Riyadh" → "2456789012").
+  // Identifiers: the value starts at the first token that contains a digit and ends before the next plain word
+  // ("P4829173B Mobile …" → "P4829173B", "BDO SA 12345678" → "12345678", "0012345678 at BPI" → "0012345678").
+  // Never shrink a value to something without a digit: if no token has one, keep the value whole.
+  let offsetShift = 0;
   if (ID_TYPES.has(type) && type !== "EMAIL") {
-    const id = v.match(/^\+?[\p{L}\d(][\p{L}\d ()\-./]*?(?=\s+\p{L}{2,}(?![\p{L}\d]*\d)|$)/u);
-    if (id) v = id[0];
+    const start = v.search(/(?:^|(?<=\s))\+?[\p{L}(]*\d(?![^[]*\]\])/u);
+    if (start >= 0) {
+      const rest = v.slice(start);
+      const id = rest.match(/^\+?[\p{L}\d(][\p{L}\d ()\-./]*?(?=\s+\p{L}{2,}(?![\p{L}\d]*\d)|$)/u);
+      if (id && /\d/.test(id[0])) {
+        offsetShift = start;
+        v = id[0];
+      }
+    }
   }
   // 4. Identifiers are a single token: "EB7654321, issued Manila" → "EB7654321".
   //    Names stop before a parenthetical or a non-name continuation: "Pedro Santos (husband), +63…".
@@ -156,10 +165,13 @@ function cleanValue(raw: string, type: PiiType): { offset: number; text: string 
   // 5. Shape check: the value must look like the field's type. This rejects trailing context
   //    ("issued Manila" is not a passport number) without ever skipping real values.
   if (!looksLike(type, v)) return null;
-  return { offset: lead.length, text: v };
+  return { offset: lead.length + offsetShift, text: v };
 }
 
-function looksLike(type: PiiType, v: string): boolean {
+function looksLike(type: PiiType, raw: string): boolean {
+  // Placeholders of already-covered values ("[[BANK_1]]") contain digits; they must not make leftover words look like an ID.
+  const v = raw.replace(/\[\[[A-Z_]+_[\d.]+\]\]/g, " ").trim();
+  if (!v) return false;
   switch (type) {
     case "EMAIL":
       return v.includes("@");
