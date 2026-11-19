@@ -23,7 +23,10 @@ if (import.meta.env.DEV) {
 }
 
 initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY ?? "unset"),
+  provider: new ReCaptchaV3Provider(
+    // Public reCAPTCHA v3 site key (safe to commit). Secret key lives only in the Firebase console.
+    import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LepDSguAAAAAFc9CLOzWt0pbVRXWlkWgkhKvQN8",
+  ),
   isTokenAutoRefreshEnabled: true,
 });
 
