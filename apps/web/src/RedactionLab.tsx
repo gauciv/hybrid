@@ -1,7 +1,7 @@
 // Dev-only panel: run the on-device redaction pipeline on a sample contract and inspect the result.
 import { useState } from "react";
 import { airlockVerdict, leakGate, redact, type AirlockVerdict, type ExternalEntity, type NerResult } from "@kontrata/core";
-import { initOnDevice, nanoNer } from "./ai/onDevice";
+import { initOnDevice, nanoNer, NER_VARIANTS } from "./ai/onDevice";
 
 // Fictional sample. Names deliberately appear OUTSIDE labeled fields so only the model can catch them.
 const SAMPLE = `EMPLOYMENT CONTRACT
@@ -31,6 +31,32 @@ export default function RedactionLab() {
     confirmed: ExternalEntity[];
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [bench, setBench] = useState<string[]>([]);
+
+  async function benchmark() {
+    setBusy(true);
+    const rows: string[] = [];
+    try {
+      await initOnDevice().catch(() => {});
+      setLog("Warm-up…");
+      await nanoNer("Warm up.", NER_VARIANTS[2].opts).catch(() => {});
+      for (const v of NER_VARIANTS) {
+        for (const run of [1, 2]) {
+          setLog(`Running ${v.id} (run ${run})…`);
+          const r = await nanoNer(text, v.opts);
+          const found = r.entities.map((e) => e.text).join("; ");
+          const verdict = airlockVerdict(leakGate(redact(text, r.entities).redacted, redact(text, r.entities).vault), r, redact(text, r.entities).redacted).kind;
+          rows.push(`${v.label} · run ${run}: ${r.ms} ms · ${r.status} · ${r.entities.length} found [${found}] · verdict ${verdict}`);
+          setBench([...rows]);
+        }
+      }
+      setLog("Benchmark done: copy the lines below and send them over.");
+    } catch (e) {
+      setLog(`Error: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function go() {
     setBusy(true);
@@ -53,7 +79,9 @@ export default function RedactionLab() {
     <section style={{ marginTop: 40, borderTop: "2px solid #222", paddingTop: 16 }}>
       <h2 style={{ fontSize: 18 }}>Redaction lab (on-device)</h2>
       <textarea value={text} onChange={(e) => setText(e.target.value)} rows={12} style={{ width: "100%", fontSize: 14 }} />
-      <button disabled={busy} onClick={go}>Redact on this device</button> <span>{log}</span>
+      <button disabled={busy} onClick={go}>Redact on this device</button>{" "}
+      <button disabled={busy} onClick={benchmark}>Benchmark speed (A–D)</button> <span>{log}</span>
+      {bench.length > 0 && <pre style={{ whiteSpace: "pre-wrap", background: "#fff8e1", padding: 12 }}>{bench.join("\n")}</pre>}
       {out && (
         <>
           <p>

@@ -1,8 +1,14 @@
 export * from "./redact/types";
 export { detectAll, detectPatterns, detectLabeled } from "./redact/detectors";
 export { redact, rehydrate, leakGate, nameTokens, nameVariants, PLACEHOLDER_RE } from "./redact/redact";
-export { buildNerPrompt, chunkText, parseNerResponse, runNer, NER_TYPES, NER_CHUNK_CHARS } from "./redact/ner";
+export { buildNerPrompt, chunkText, parseNerResponse, parseNerLines, selectNerLines, runNer, NER_TYPES, NER_CHUNK_CHARS } from "./redact/ner";
+export type { NerOptions } from "./redact/ner";
 export type { NerResult, NerStatus, NerResponse, NerType } from "./redact/ner";
 export { airlockVerdict } from "./redact/verdict";
 export type { AirlockVerdict } from "./redact/verdict";
 export { suspectNames, nameLikePhrases, unverifiedNameCandidates } from "./redact/suspects";
+export { checkDocument, guessKind, clauses, DEFAULT_RULES_CONFIG } from "./rules/engine";
+export type { Finding, Severity, Lang, RulesConfig, DocKind } from "./rules/engine";
+export { CITATIONS } from "./rules/sources";
+export type { Citation, CitationId } from "./rules/sources";
+export { findAmounts, toUsd, DEFAULT_RATES } from "./rules/money";
