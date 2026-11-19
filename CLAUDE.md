@@ -71,4 +71,9 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   No real OFW contacts/posts: use Amnesty MDE 23/1197/2026 verbatim testimony (real-samples/testimonies.md; say "published by
   Amnesty", never "we interviewed") + official DMW red flags + SYNTHETIC labelled posts S1–S4 (real-samples/recruiter-red-flags.md).
   Pitch line: "the boss is the contract" (Elena, Amnesty p.17); Eliza gave up passport because she didn't know it was not allowed.
-  **Next:** speed up NER → rules engine (needs docs/sources) → real product UI (frontend-design).
+- NER speed variants A–D (filterLines / people-only / lines format) + "Benchmark speed (A–D)" button in lab → awaiting TUF numbers.
+- Rules engine ✓ `packages/core/src/rules/` (offline, TL+EN pre-written, every finding cites verbatim `CITATIONS` from docs/sources):
+  salary (USD conversion, Remote-Config-ready thresholds), passport, rest day, hours, placement fee, deductions, food/lodging,
+  airfare; post rules: tourist visa, GCash/e-wallet, fixer, chat-only, no license. Trust test: official SECs → zero red flags.
+  Works identically on redacted text. 118 tests.
+  **Next:** pick NER variant from benchmark → cloud deep check (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).

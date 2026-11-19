@@ -79,7 +79,7 @@ const WORD = String.raw`(?:\p{Lu}\p{Ll}+|\p{Lu}{2,})`;
 const CAP_PHRASE = new RegExp(String.raw`${WORD}(?:[ -]${WORD})+`, "gu");
 const SUBJECT = /(?<![\p{L}])(\p{Lu}\p{Ll}{2,})\s+(?:shall|will|must|agrees?|is|has|may)\b/gu;
 
-const isCommon = (w: string) => COMMON.has(w.toLowerCase());
+export const isCommon = (w: string) => COMMON.has(w.toLowerCase());
 
 export function nameLikePhrases(payload: string): string[] {
   const text = payload.replace(/\[\[[A-Z_]+_[\d.]+\]\]/g, "§");
