@@ -197,3 +197,23 @@ describe("security review regressions", () => {
     expect(leakGate("Name of Worker: [[PERSON_1]] Ana", vault).ok).toBe(false);
   });
 });
+
+describe("security review regressions (round 2)", () => {
+  it("redacts a name after a leading parenthetical title", () => {
+    const { redacted } = redact("Name of Worker: (Ms.) Ana Reyes");
+    expect(redacted).not.toContain("Ana Reyes");
+    expect(redacted).toContain("(Ms.)");
+  });
+  it("gate flags a name after a placeholder and a double space", () => {
+    const { vault } = redact("Name of Worker: Liza Mendoza");
+    expect(leakGate("Name of Worker: [[PERSON_1]]  Ana Cruz", vault).ok).toBe(false);
+  });
+  it("gate flags an ID after a placeholder and a parenthetical", () => {
+    expect(leakGate("Passport No.: [[PASSPORT_1]] (old) EB7654321", new Map()).ok).toBe(false);
+  });
+  it("trailing context that is not an identifier is not a leak", () => {
+    expect(leakGate("Passport No.: [[PASSPORT_1]], issued Manila", new Map()).ok).toBe(true);
+    expect(leakGate("Next of Kin: [[PERSON_1]] (husband), [[PHONE_1]]", new Map()).ok).toBe(true);
+    expect(leakGate("Name: [[PERSON_1]]    Age: 29", new Map()).ok).toBe(true);
+  });
+});

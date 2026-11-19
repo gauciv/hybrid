@@ -115,27 +115,45 @@ const ID_TYPES = new Set<PiiType>(["PASSPORT", "GOV_ID", "BANK", "PHONE", "EMAIL
 
 /** Clean a captured form value: drop blanks like "______", trailing punctuation, and trailing context. */
 function cleanValue(raw: string, type: PiiType): { offset: number; text: string } | null {
-  // A field that is entirely placeholder(s) is already redacted. If real text follows a placeholder,
-  // keep analysing that remainder (never skip a field just because it *starts* with a placeholder).
-  const lead = raw.match(/^(?:\s*\[\[[A-Z_]+_[\d.]+\]\])+/);
-  if (lead) {
-    const rest = cleanValue(raw.slice(lead[0].length), type);
-    return rest && { offset: rest.offset + lead[0].length, text: rest.text };
-  }
-  // Cut at the next "Label:" on the same line (e.g. "Name: Maria Santos   Age: 34").
-  const nextLabel = raw.search(/\s{2,}[A-Z][A-Za-z' ]{1,30}\s*[:：]|\t/);
-  if (nextLabel === 0) return null; // empty field followed by another label
-  let v = nextLabel > 0 ? raw.slice(0, nextLabel) : raw;
-  // Identifiers are a single token: "EB7654321, issued Manila" → "EB7654321".
-  // Names stop before a parenthetical or a non-name continuation: "Pedro Santos (husband), +63…" → "Pedro Santos".
+  // 1. Skip what is *not* the value: whitespace, separators, parentheticals like "(Ms.)", and
+  //    placeholders of already-redacted values. Never treat the field as empty just because of
+  //    how it starts; we keep looking at whatever real text follows.
+  const lead = raw.match(/^(?:[\s,.;:]+|\([^()\n]{0,40}\)|\[\[[A-Z_]+_[\d.]+\]\])*/)![0];
+  let v = raw.slice(lead.length);
+  // 2. The remainder is another field ("Age: 29"), not this field's value.
+  if (/^[A-Z][A-Za-z'’]*(?: [A-Za-z'’]+){0,3}\.?\s*[:：]/.test(v)) return null;
+  // 3. Cut at the next "Label:" on the same line (e.g. "Name: Maria Santos   Age: 34").
+  const nextLabel = v.search(/\s{2,}[A-Z][A-Za-z' ]{1,30}\s*[:：]|\t/);
+  if (nextLabel > 0) v = v.slice(0, nextLabel);
+  // 4. Identifiers are a single token: "EB7654321, issued Manila" → "EB7654321".
+  //    Names stop before a parenthetical or a non-name continuation: "Pedro Santos (husband), +63…".
   const cut =
     ID_TYPES.has(type) ? v.search(/,\s|\.\s|\s\(|\s{2,}/) :
     type === "PERSON" ? v.search(/\s*\(|,\s*(?=[^A-Z\s])|\s{2,}/) : -1;
-  if (cut >= 0) v = v.slice(0, cut); // cut at 0 → nothing but trailing context → empty field
-  const ws = v.length - v.trimStart().length;
-  v = v.trim().replace(/[\s_.,]+$/, "");
+  if (cut > 0) v = v.slice(0, cut);
+  v = v.trimEnd().replace(/[\s_.,]+$/, "");
   if (!v || /^[_\-.\s]+$/.test(v)) return null;
-  return { offset: ws, text: v };
+  // 5. Shape check: the value must look like the field's type. This rejects trailing context
+  //    ("issued Manila" is not a passport number) without ever skipping real values.
+  if (!looksLike(type, v)) return null;
+  return { offset: lead.length, text: v };
+}
+
+function looksLike(type: PiiType, v: string): boolean {
+  switch (type) {
+    case "EMAIL":
+      return v.includes("@");
+    case "PASSPORT":
+    case "GOV_ID":
+    case "BANK":
+    case "PHONE":
+    case "ID_NUMBER":
+      return /\d/.test(v);
+    case "PERSON":
+      return /^\p{L}/u.test(v);
+    default: // ADDRESS, DOB: any real text
+      return /[\p{L}\p{N}]/u.test(v);
+  }
 }
 
 export function detectPatterns(text: string): Span[] {
