@@ -5,4 +5,4 @@ export { buildNerPrompt, chunkText, parseNerResponse, runNer, NER_TYPES, NER_CHU
 export type { NerResult, NerStatus, NerResponse, NerType } from "./redact/ner";
 export { airlockVerdict } from "./redact/verdict";
 export type { AirlockVerdict } from "./redact/verdict";
-export { suspectNames } from "./redact/suspects";
+export { suspectNames, unverifiedNameCandidates } from "./redact/suspects";
