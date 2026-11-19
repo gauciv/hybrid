@@ -134,7 +134,7 @@ describe("properties", () => {
     fc.assert(
       fc.property(contractArb, (r) => {
         const { redacted, vault } = redact(render(r));
-        return airlockVerdict(leakGate(redacted, vault), "ok", redacted).kind === "safe";
+        return airlockVerdict(leakGate(redacted, vault), { status: "ok", entities: [{ text: r.worker, type: "PERSON" }] }, redacted).kind === "safe";
       }),
       { numRuns: 500 },
     );

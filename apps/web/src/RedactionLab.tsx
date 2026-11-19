@@ -29,7 +29,7 @@ export default function RedactionLab() {
       setLog("Finding names on-device…");
       const ner = await nanoNer(text);
       const { redacted, vault } = redact(text, ner.entities);
-      setOut({ redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), ner.status, redacted), ner });
+      setOut({ redacted, vault: [...vault], verdict: airlockVerdict(leakGate(redacted, vault), ner, redacted), ner });
       setLog("");
     } catch (e) {
       setLog(`Error: ${(e as Error).message}`);
@@ -55,7 +55,9 @@ export default function RedactionLab() {
                   ? "BLOCKED"
                   : out.verdict.reason === "possible_names"
                     ? `REVIEW REQUIRED: possible names left: ${out.verdict.suspects.join(", ")}`
-                    : "REVIEW REQUIRED: names were not fully checked by the on-device model"}
+                    : out.verdict.reason === "unverified_no_names"
+                      ? `REVIEW REQUIRED: model found no people; please check: ${out.verdict.candidates.join(", ")}`
+                      : "REVIEW REQUIRED: names were not fully checked by the on-device model"}
             </strong>
           </p>
           {out.verdict.kind === "blocked" && <pre style={{ color: "crimson" }}>{JSON.stringify(out.verdict.leaks, null, 1)}</pre>}

@@ -34,3 +34,38 @@ export function suspectNames(payload: string): string[] {
   }
   return [...found];
 }
+
+// ---- Used only when the model reported ZERO people: its silence is unverified (could be injection). ----
+// Any capitalised multi-word phrase that is not ordinary contract vocabulary, a known place, or an
+// organisation is a candidate name for the user to check.
+const COMMON = new Set(
+  (
+    "the this that these a an and of for to in on at by with from employer employers employee employees worker workers " +
+    "agency agreement contract contracts employment standard household service services domestic helper overseas filipino filipina " +
+    "philippine philippines section article clause annex schedule name address passport contact mobile tel phone no number email " +
+    "salary monthly month months day days week weeks year years hours rest food lodging medical insurance ticket airfare " +
+    "repatriation termination department migrant migrants ministry labor labour office embassy consulate republic kingdom state " +
+    "government welfare administration owwa dmw poea zero placement fee fees hiring message apply now urgent visa work permit " +
+    "january february march april may june july august september october november december " +
+    "monday tuesday wednesday thursday friday saturday sunday " +
+    "saudi arabia kuwait qatar united arab emirates uae dubai abu dhabi sharjah doha riyadh jeddah dammam khobar bahrain manama " +
+    "oman muscat hong kong singapore taiwan japan korea malaysia brunei israel canada italy cyprus manila quezon city cebu davao " +
+    "makati pasay taguig metro middle east asia al el"
+  ).split(/\s+/),
+);
+const ORG_SUFFIX = /\b(?:Inc|Corp|Corporation|Co|Company|LLC|Ltd|Services|Agency|Manpower|Recruitment|International|Group|Holdings|Trading)\.?$/u;
+const TITLE_PHRASE = /\p{Lu}\p{Ll}+(?:[ -]\p{Lu}\p{Ll}+)+/gu; // Title Case only (ALL-CAPS headings are skipped)
+
+export function unverifiedNameCandidates(payload: string): string[] {
+  const text = payload.replace(/\[\[[A-Z_]+_[\d.]+\]\]/g, "§");
+  const out = new Set<string>();
+  for (const m of text.matchAll(TITLE_PHRASE)) {
+    const phrase = m[0];
+    // Trim an org suffix run: "Golden Hands Manpower Services Inc" is an organisation, not a person.
+    const after = text.slice(m.index! + phrase.length, m.index! + phrase.length + 6);
+    if (ORG_SUFFIX.test(phrase) || /^\s*(?:Inc|Corp|Co|Ltd|LLC)\b/.test(after)) continue;
+    const words = phrase.split(/[ -]/);
+    if (words.some((w) => !COMMON.has(w.toLowerCase()))) out.add(phrase);
+  }
+  return [...out];
+}

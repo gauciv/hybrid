@@ -54,6 +54,9 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   hallucinated entities dropped, chunked). `airlockVerdict()` = safe | needs_review | blocked: **never "safe" unless NER ran fully**
   (found in browser: gate alone said PASS with unlabeled names visible). Identifier regexes no longer span newlines.
   Security round 3: malformed NER output = failed chunk; prompt fences untrusted text; model-free `suspectNames()` backstop
-  (honorifics, bin/Al-, role patterns) forces review even if a prompt injection silences Nano; Unicode spaces (NBSP etc.) handled. 74 tests.
+  (honorifics, bin/Al-, role patterns) forces review even if a prompt injection silences Nano; Unicode spaces (NBSP etc.) handled.
+  Round 4: per-call random nonce fence; model finding ZERO people = unverified → title-case phrase scan → review. 80 tests.
+  ✅ **Real Nano run on TUF: 5/5 entities (incl. unlabeled names + address), verdict SAFE, facts preserved. 23.8 s cold**
+  (check warm time; optimise if still slow). Saved as regression fixture in `test/security-round4.test.ts`.
   Redaction lab panel on live site for TUF testing. Hosting: index no-cache, /assets immutable.
-  **Next:** test NER on TUF → rules engine (needs docs/sources) → real product UI (frontend-design).
+  **Next:** warm-run timing on TUF → rules engine (needs docs/sources) → real product UI (frontend-design).

@@ -9,19 +9,19 @@ describe("airlockVerdict", () => {
     const { redacted, vault } = redact(UNLABELED); // regex-only: names survive
     const gate = leakGate(redacted, vault);
     expect(gate.ok).toBe(true); // the gate alone cannot know about unlabeled names…
-    expect(airlockVerdict(gate, "unavailable", redacted)).toEqual({ kind: "needs_review", reason: "model_unavailable" });
+    expect(airlockVerdict(gate, { status: "unavailable", entities: [] }, redacted)).toEqual({ kind: "needs_review", reason: "model_unavailable" });
   });
   it("partial model coverage also requires review", () => {
-    expect(airlockVerdict({ ok: true, leaks: [] }, "partial", "").kind).toBe("needs_review");
+    expect(airlockVerdict({ ok: true, leaks: [] }, { status: "partial", entities: [] }, "").kind).toBe("needs_review");
   });
   it("a gate failure always blocks, whatever the model status", () => {
     fc.assert(
       fc.property(fc.constantFrom("ok", "partial", "unavailable") as fc.Arbitrary<"ok" | "partial" | "unavailable">, (s) => {
-        return airlockVerdict({ ok: false, leaks: [{ type: "PHONE", text: "x" }] }, s, "").kind === "blocked";
+        return airlockVerdict({ ok: false, leaks: [{ type: "PHONE", text: "x" }] }, { status: s, entities: [] }, "").kind === "blocked";
       }),
     );
   });
   it("safe only when gate passes AND model ran fully", () => {
-    expect(airlockVerdict({ ok: true, leaks: [] }, "ok", "")).toEqual({ kind: "safe" });
+    expect(airlockVerdict({ ok: true, leaks: [] }, { status: "ok", entities: [] }, "")).toEqual({ kind: "safe" });
   });
 });
