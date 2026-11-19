@@ -14,23 +14,23 @@ describe("parseNerResponse", () => {
         { text: "Street 12, Al Wakra", type: "ADDRESS" },
       ],
     });
-    expect(parseNerResponse(raw, CONTRACT)).toEqual([
+    expect(parseNerResponse(raw, CONTRACT).entities).toEqual([
       { text: "Hamad Al-Kuwari", type: "PERSON" },
       { text: "Street 12, Al Wakra", type: "ADDRESS" },
     ]);
   });
   it("drops hallucinated entities not present in the source", () => {
     const raw = JSON.stringify({ entities: [{ text: "Juan dela Cruz", type: "PERSON" }] });
-    expect(parseNerResponse(raw, CONTRACT)).toEqual([]);
+    expect(parseNerResponse(raw, CONTRACT).entities).toEqual([]);
   });
   it("drops unknown types and junk without throwing", () => {
-    expect(parseNerResponse("not json", CONTRACT)).toEqual([]);
-    expect(parseNerResponse('{"entities": "nope"}', CONTRACT)).toEqual([]);
-    expect(parseNerResponse('{"entities":[{"text":"Qatar","type":"COUNTRY"},null,{"type":"PERSON"}]}', CONTRACT)).toEqual([]);
+    expect(parseNerResponse("not json", CONTRACT).ok).toBe(false);
+    expect(parseNerResponse('{"entities": "nope"}', CONTRACT).ok).toBe(false);
+    expect(parseNerResponse('{"entities":[{"text":"Qatar","type":"COUNTRY"},null,{"type":"PERSON"}]}', CONTRACT).entities).toEqual([]);
   });
   it("accepts fenced JSON and dedupes", () => {
     const raw = '```json\n{"entities":[{"text":"Liza Mendoza","type":"PERSON"},{"text":"liza mendoza","type":"PERSON"}]}\n```';
-    expect(parseNerResponse(raw, CONTRACT)).toEqual([{ text: "Liza Mendoza", type: "PERSON" }]);
+    expect(parseNerResponse(raw, CONTRACT).entities).toEqual([{ text: "Liza Mendoza", type: "PERSON" }]);
   });
 });
 

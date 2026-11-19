@@ -52,6 +52,8 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Replay protection = monitoring only (limited-use tokens would burn the 10k/month Fraud Defense free tier per call).
 - Nano NER layer ✓ (`packages/core/src/redact/ner.ts` + `apps/web/src/ai/onDevice.ts`, ONLY_ON_DEVICE + responseConstraint schema,
   hallucinated entities dropped, chunked). `airlockVerdict()` = safe | needs_review | blocked: **never "safe" unless NER ran fully**
-  (found in browser: gate alone said PASS with unlabeled names visible). Identifier regexes no longer span newlines. 62 tests.
+  (found in browser: gate alone said PASS with unlabeled names visible). Identifier regexes no longer span newlines.
+  Security round 3: malformed NER output = failed chunk; prompt fences untrusted text; model-free `suspectNames()` backstop
+  (honorifics, bin/Al-, role patterns) forces review even if a prompt injection silences Nano; Unicode spaces (NBSP etc.) handled. 74 tests.
   Redaction lab panel on live site for TUF testing. Hosting: index no-cache, /assets immutable.
   **Next:** test NER on TUF → rules engine (needs docs/sources) → real product UI (frontend-design).

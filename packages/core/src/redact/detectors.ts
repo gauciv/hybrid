@@ -15,6 +15,12 @@ interface PatternDetector {
 
 const digits = (s: string) => s.replace(/\D/g, "").length;
 
+// Horizontal whitespace of ANY kind (space, tab, NBSP, thin space, narrow NBSP…) but never a line break.
+// Identifiers never span lines, but documents (PDFs, Word, chat apps) use all sorts of Unicode spaces.
+const H = String.raw`[^\S\r\n\u2028\u2029]`;
+const SEP = `(?:${H}|-)`;
+const rx = (src: string) => new RegExp(src, "g");
+
 // Money like "1,500" / "1,500,000.00" (comma-grouped) is never an ID.
 const looksLikeMoney = (s: string) => /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s.trim());
 
@@ -22,13 +28,13 @@ export const PATTERNS: PatternDetector[] = [
   { type: "EMAIL", re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
 
   // PH mobile: +63 917 123 4567 / 0917-123-4567 / 09171234567
-  { type: "PHONE", re: /(?:\+?63[ \t-]?|\b0)9\d{2}[ \t-]?\d{3}[ \t-]?\d{4}\b/g },
+  { type: "PHONE", re: rx(String.raw`(?:\+?63${SEP}?|\b0)9\d{2}${SEP}?\d{3}${SEP}?\d{4}\b`) },
   // PH landline: (02) 8123-4567
-  { type: "PHONE", re: /\(0\d{1,2}\)[ \t]?\d{3,4}[ \t-]?\d{4}\b/g },
+  { type: "PHONE", re: rx(String.raw`\(0\d{1,2}\)${H}?\d{3,4}${SEP}?\d{4}\b`) },
   // International with +country code: +966 55 123 4567, +971-50-123-4567, +852 9123 4567
   {
     type: "PHONE",
-    re: /\+\d{1,3}[ \t.-]?\(?\d[\d \t().-]{6,16}\d/g,
+    re: rx(String.raw`\+\d{1,3}(?:${H}|[.-])?\(?\d(?:\d|${H}|[().-]){6,16}\d`),
     accept: (m) => digits(m) >= 8 && digits(m) <= 15,
   },
 
@@ -43,12 +49,12 @@ export const PATTERNS: PatternDetector[] = [
   { type: "GOV_ID", re: /\b\d{4}-\d{4}-\d{4}\b/g }, // Pag-IBIG MID
 
   // IBAN (Gulf banks use these heavily)
-  { type: "BANK", re: /\b[A-Z]{2}\d{2}(?:[ \t]?[A-Z0-9]{4}){3,7}(?:[ \t]?[A-Z0-9]{1,4})?\b/g },
+  { type: "BANK", re: rx(String.raw`\b[A-Z]{2}\d{2}(?:${H}?[A-Z0-9]{4}){3,7}(?:${H}?[A-Z0-9]{1,4})?\b`) },
 
   // Any other long number (≥9 digits): account nos., Iqama, civil IDs, OEC… Not money.
   {
     type: "ID_NUMBER",
-    re: /\b\d[\d \t-]{7,}\d\b/g,
+    re: rx(String.raw`\b\d(?:\d|${H}|-){7,}\d\b`),
     accept: (m) => digits(m) >= 9 && !looksLikeMoney(m),
   },
 ];
@@ -96,7 +102,7 @@ const LABEL_RE = (() => {
   // Optional "No." after label, then ":" or "-", then the value up to line end / ; / |
   // Bare "name:" is handled separately so "Company Name:" / "Agency Name:" stay intact.
   return {
-    re: new RegExp(`(?<![A-Za-z])(${alt})\\.?(?:\\s*(?:no\\.?|#))?\\s*[:：][ \\t]*([^\\n;|]{1,120})`, "gi"),
+    re: new RegExp(`(?<![A-Za-z])(${alt})\\.?(?:\\s*(?:no\\.?|#))?\\s*[:：]${H}*([^\\n;|]{1,120})`, "gi"),
     typeOf: (label: string) => {
       const norm = label.toLowerCase().replace(/[’]/g, "'");
       return (
@@ -109,7 +115,7 @@ const LABEL_RE = (() => {
 })();
 
 // Bare "Name:" but not "Company Name:", "Agency Name:", "Name of Agency:", "Business Name:" etc.
-const BARE_NAME_RE = /(?<!(?:company|agency|business|establishment|bank|hospital|school|vessel|trade|brand|file|user)\s)(?<![A-Za-z])name\s*[:：][ \t]*([^\n;|]{1,120})/gi;
+const BARE_NAME_RE = /(?<!(?:company|agency|business|establishment|bank|hospital|school|vessel|trade|brand|file|user)\s)(?<![A-Za-z])name\s*[:：][^\S\r\n]*([^\n;|]{1,120})/gi;
 
 const ID_TYPES = new Set<PiiType>(["PASSPORT", "GOV_ID", "BANK", "PHONE", "EMAIL", "ID_NUMBER"]);
 
