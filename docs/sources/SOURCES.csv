@@ -1,1 +1,7 @@
 file,url,date_downloaded,notes
+contracts/sec-hsw-dubai-2023.pdf,https://mwodubai.org/wp-content/uploads/2024/05/2023-FORM-Standard-Employment-Contract-DOMESTIC-WORKER.pdf,2026-11-19,MWO Dubai 2023 HSW standard contract (UAE). Text in .txt
+contracts/sec-hsw-poea-embassy-dc.pdf,https://philippineembassy-dc.org/wp-content/uploads/2019/09/POEA-Standard-Contract-Household-Workers.pdf,2026-11-19,POEA standard contract for household workers (via PH Embassy Washington DC). Text in .txt
+contracts/sec-hsw-singapore-polo-2019.pdf,https://www.philippine-embassy.org.sg/wp-content/uploads/POLO_FORMS_2019.pdf,2026-11-19,POLO Singapore 2019 forms incl. HSW contract. Older; check vs current. Text in .txt
+rules/ra-8042-migrant-workers-act.txt,https://lawphil.net/statutes/repacts/ra1995/ra_8042_1995.html,2026-11-19,RA 8042 Migrant Workers and Overseas Filipinos Act of 1995 (text extracted from HTML)
+rules/ra-10022-amending-ra-8042.txt,https://lawphil.net/statutes/repacts/ra2010/ra_10022_2010.html,2026-11-19,RA 10022 (2010) amending RA 8042; illegal recruitment definitions and penalties
+rules/ra-11641-dmw-charter.txt,https://lawphil.net/statutes/repacts/ra2021/ra_11641_2021.html,2026-11-19,RA 11641 (2021) creating the Department of Migrant Workers
