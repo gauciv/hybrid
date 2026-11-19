@@ -27,6 +27,15 @@ enforced on AI Logic, so only the real web app can call the model.
    ALL-CAPS phrases, "<Name> shall …". Any hit → **needs review**, the user confirms in one click.
 6. **Verdict**: `safe` only if every layer ran and nothing was flagged.
 
+## Caching repeated work
+
+| Cached | Where | Why |
+|---|---|---|
+| On-device name results, photo/PDF readings | Memory only (LRU, gone when the tab closes) | Contain raw contract text and real names; never written to disk (shared phones, internet-café PCs) |
+| Cloud explanation responses | `sessionStorage`, keyed by SHA-256 of model + exact prompt | Contain only placeholders, never real data; saves free-tier quota; cleared when the tab closes |
+
+Failures are never cached. Measured: a repeated explanation went from 8.6 s (cloud) to 0.25 s (no cloud call).
+
 ## Adversaries and what they can gain
 
 | Scenario | Likelihood | What happens | Mitigation |

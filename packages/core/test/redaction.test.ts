@@ -240,3 +240,21 @@ describe("identifiers never span line breaks", () => {
     expect(redacted).toBe("Clause 12345\n6789 workers");
   });
 });
+
+describe("OCR output: fields separated by a single space (regression from a real photo test)", () => {
+  it("passport and phone on one line stay separate values", () => {
+    const { redacted, vault } = redact("Passport No.: P4829173B Mobile No.: +63 917 555 0142");
+    expect(redacted).toBe("Passport No.: [[PASSPORT_1]] Mobile No.: [[PHONE_1]]");
+    expect(vault.get("[[PASSPORT_1]]")).toBe("P4829173B");
+    expect(vault.get("[[PHONE_1]]")).toBe("+63 917 555 0142");
+  });
+  it("a name followed by another field on the same line", () => {
+    const { vault } = redact("Name of Worker: Ana Reyes Age: 29 Civil Status: Single");
+    expect(vault.get("[[PERSON_1]]")).toBe("Ana Reyes");
+  });
+  it("an ID followed by a word stops at the ID", () => {
+    const { vault } = redact("Iqama No: 2456789012 issued in Riyadh");
+    expect([...vault.values()]).toContain("2456789012");
+    expect([...vault.values()].join(" ")).not.toContain("Riyadh");
+  });
+});

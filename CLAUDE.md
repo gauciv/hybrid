@@ -94,4 +94,9 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   (verified: sample photo read perfectly in 1.5–3 s; network log = only GETs of OCR engine from jsDelivr, image never uploaded).
   User proofreads extracted text before checking. "Subukan ang sample photo" uses public/samples/sample-contract-photo.png.
   User has NO supported Android phone.
+- Composer redesign (`apps/web/src/product/Composer.tsx`): Upload + "Subukan ang sample ▾" menu + Check; responsive (stacks
+  <560px); preview card (thumbnail, read method, proofread hint, Alisin); all inputs locked while reading + stale results
+  discarded (fixes race bug). Caching (`apps/web/src/cache.ts`): NER + readings memory-only; cloud responses sessionStorage
+  (placeholders only) → repeat explain 8.6 s → 0.25 s. Fixed OCR single-space field bug (passport swallowed phone). 136 tests.
+  TUF test of sample photo: on-device NER 2.9 s, 4 findings correct.
   **Next:** decide Android (emulator-only testing) → write-up + video script (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).

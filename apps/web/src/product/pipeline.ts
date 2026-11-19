@@ -15,6 +15,10 @@ import {
 } from "@kontrata/core";
 import { initOnDevice, nanoNer } from "../ai/onDevice";
 import { rulesConfig } from "../config";
+import { fingerprint, MemoryCache } from "../cache";
+
+// Same text → same on-device result; skip re-running Gemini Nano. Memory only (contains real names).
+const nerCache = new MemoryCache<NerResult & { ms: number }>();
 
 export interface Analysis {
   text: string;
@@ -44,6 +48,15 @@ const withTimeout = <T,>(p: Promise<T>, ms: number) =>
 
 /** Must be started from a click (Chrome requires a user gesture to prepare the on-device model). */
 export async function findPeopleOnDevice(text: string): Promise<NerResult & { ms: number }> {
+  const key = await fingerprint(text);
+  const hit = nerCache.get(key);
+  if (hit) return hit;
+  const result = await detectPeople(text);
+  if (result.status === "ok") nerCache.set(key, result); // never cache a failure
+  return result;
+}
+
+async function detectPeople(text: string): Promise<NerResult & { ms: number }> {
   const availability = await onDeviceAvailability();
   if (availability !== "available") {
     // Start a download in the background for next time; don't make the worker wait for it now.
