@@ -1,0 +1,19 @@
+{
+  "parameters": {
+    "hsw_min_salary_usd": {
+      "defaultValue": { "value": "500" },
+      "description": "Current DMW minimum monthly salary for household service workers (USD). Source: DMW Advisory 25-2025; MC 03-2025 transition. Update when DMW announces the audit outcome.",
+      "valueType": "NUMBER"
+    },
+    "hsw_old_min_salary_usd": {
+      "defaultValue": { "value": "400" },
+      "description": "Previous (2006) DMW minimum for household service workers (USD). Below this = red flag.",
+      "valueType": "NUMBER"
+    },
+    "cloud_model": {
+      "defaultValue": { "value": "gemini-3.5-flash-lite" },
+      "description": "Gemini model for the cloud explanation (Firebase AI Logic, Gemini Developer API). Must be available on the free tier.",
+      "valueType": "STRING"
+    }
+  }
+}

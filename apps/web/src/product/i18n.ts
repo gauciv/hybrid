@@ -24,8 +24,8 @@ export const T = {
   check: { tl: "I-check", en: "Check" },
   emptyInput: { tl: "Mag-paste muna ng contract o message.", en: "Paste the contract or message text first." },
 
-  step1: { tl: "Hinahanap ang personal details sa device mo", en: "Finding personal details on your device" },
-  step2: { tl: "Tinatakpan ang mga ito", en: "Covering them up" },
+  step1: { tl: "Hinahanap ang mga pangalan at numero sa text na pinaste mo", en: "Looking for names and numbers in the text you pasted" },
+  step2: { tl: "Tinatakpan ang mga ito, dito lang sa device mo", en: "Covering them up, here on your device" },
   step3: { tl: "Kinukumpara sa rules ng DMW", en: "Comparing with DMW rules" },
 
   resultsRed: { tl: (n: number) => (n === 1 ? "1 part ang labag sa rules" : `${n} parts ang labag sa rules`), en: (n: number) => (n === 1 ? "1 part goes against the rules" : `${n} parts go against the rules`) },
