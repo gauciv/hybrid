@@ -6,8 +6,7 @@ import { nameLikePhrases, suspectNames } from "./suspects";
 
 export type AirlockVerdict =
   | { kind: "safe" }
-  | { kind: "needs_review"; reason: "model_unavailable" | "model_partial" }
-  | { kind: "needs_review"; reason: "possible_names"; suspects: string[] }
+  | { kind: "needs_review"; reason: "model_unavailable" | "model_partial" | "possible_names"; suspects: string[] }
   | { kind: "blocked"; leaks: GateResult["leaks"] };
 
 /**
@@ -20,11 +19,12 @@ export function airlockVerdict(
   payload: string,
 ): AirlockVerdict {
   if (!gate.ok) return { kind: "blocked", leaks: gate.leaks };
-  if (ner.status === "unavailable") return { kind: "needs_review", reason: "model_unavailable" };
-  if (ner.status === "partial") return { kind: "needs_review", reason: "model_partial" };
   // Model-free checks ALWAYS run on the outbound payload. The document is attacker-controlled, so what the
-  // model reported (e.g. one decoy name) must never switch these off.
+  // model reported (e.g. one decoy name) must never switch these off. Their suspects are always reported so the
+  // user can redact them in one click, which matters most when the on-device model is unavailable.
   const suspects = [...new Set([...suspectNames(payload), ...nameLikePhrases(payload)])];
+  if (ner.status === "unavailable") return { kind: "needs_review", reason: "model_unavailable", suspects };
+  if (ner.status === "partial") return { kind: "needs_review", reason: "model_partial", suspects };
   if (suspects.length) return { kind: "needs_review", reason: "possible_names", suspects };
   return { kind: "safe" };
 }

@@ -9,7 +9,10 @@ describe("airlockVerdict", () => {
     const { redacted, vault } = redact(UNLABELED); // regex-only: names survive
     const gate = leakGate(redacted, vault);
     expect(gate.ok).toBe(true); // the gate alone cannot know about unlabeled names…
-    expect(airlockVerdict(gate, { status: "unavailable", entities: [] }, redacted)).toEqual({ kind: "needs_review", reason: "model_unavailable" });
+    const v = airlockVerdict(gate, { status: "unavailable", entities: [] }, redacted);
+    expect(v).toMatchObject({ kind: "needs_review", reason: "model_unavailable" });
+    // …and it still tells the user exactly which names look unredacted
+    if (v.kind === "needs_review") expect(v.suspects).toEqual(expect.arrayContaining(["Hamad Al-Kuwari", "Liza Mendoza"]));
   });
   it("partial model coverage also requires review", () => {
     expect(airlockVerdict({ ok: true, leaks: [] }, { status: "partial", entities: [] }, "").kind).toBe("needs_review");
