@@ -39,10 +39,13 @@ function modelFor(opts: NerOptions): GenerativeModel {
 
 /** Must be called from a user gesture (click) before the first on-device call. */
 export function initOnDevice(onProgress?: (p: number) => void) {
-  return modelFor({}).initializeDeviceModel(onProgress);
+  return modelFor(DEFAULT_NER_OPTIONS).initializeDeviceModel(onProgress);
 }
 
-export async function nanoNer(text: string, opts: NerOptions = {}): Promise<NerResult & { ms: number }> {
+/** Production setting, chosen by benchmark on the ASUS TUF (docs/BENCHMARKS.md): ~1.3 s, 3/3 entities, consistent. */
+export const DEFAULT_NER_OPTIONS: NerOptions = { format: "lines", focus: "people", filterLines: true };
+
+export async function nanoNer(text: string, opts: NerOptions = DEFAULT_NER_OPTIONS): Promise<NerResult & { ms: number }> {
   const model = modelFor(opts);
   const t0 = performance.now();
   const result = await runNer(
