@@ -15,11 +15,20 @@ const NAME_STOP = new Set([
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Whole-word occurrence finder. Unicode-aware (Arabic, ñ, etc.). */
-function findAll(text: string, needle: string, caseSensitive = false): [number, number][] {
+/** Whole-word, case-insensitive occurrence finder. Unicode-aware (Arabic, ñ, etc.). */
+function findAll(text: string, needle: string): [number, number][] {
   if (!needle.trim()) return [];
-  const re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(needle)}(?![\\p{L}\\p{N}])`, caseSensitive ? "gu" : "giu");
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(needle)}(?![\\p{L}\\p{N}])`, "giu");
   return [...text.matchAll(re)].map((m) => [m.index!, m.index! + m[0].length]);
+}
+
+/**
+ * Occurrences of a partial name in any case ("Santos", "SANTOS"), but only where the occurrence
+ * starts with a capital letter, so common words that double as names ("may", "hope", "grace")
+ * are not redacted mid-sentence.
+ */
+function findNamePart(text: string, part: string): [number, number][] {
+  return findAll(text, part).filter(([s]) => /^\p{Lu}/u.test(text[s]));
 }
 
 const isNameWord = (t: string) => t.length >= 3 && /^\p{Lu}/u.test(t) && !NAME_STOP.has(t.toLowerCase());
@@ -83,7 +92,7 @@ export function redact(text: string, entities: ExternalEntity[] = []): Redaction
     for (const [s, e] of findAll(text, value)) spans.push({ start: s, end: e, type, source: "vault" });
     if (type === "PERSON")
       for (const v of nameVariants(value))
-        for (const [s, e] of findAll(text, v, true)) spans.push({ start: s, end: e, type, source: "vault" });
+        for (const [s, e] of findNamePart(text, v)) spans.push({ start: s, end: e, type, source: "vault" });
   }
 
   // Never redact inside existing placeholders.
@@ -95,20 +104,27 @@ export function redact(text: string, entities: ExternalEntity[] = []): Redaction
   // Assign placeholders. Same text → same placeholder. Partial names → linked sub-placeholder [[PERSON_n.k]].
   const vault: Vault = new Map();
   const byKey = new Map<string, string>();
+  // Start numbering after any placeholder-shaped text already in the input, so we never collide with it.
   const counters = new Map<string, number>();
+  for (const m of text.matchAll(PLACEHOLDER_RE)) {
+    const n = parseInt(m[2], 10);
+    if (n > (counters.get(m[1]) ?? 0)) counters.set(m[1], n);
+  }
   const next = (key: string) => {
     const n = (counters.get(key) ?? 0) + 1;
     counters.set(key, n);
     return n;
   };
   const placeholderFor = (type: PiiType, value: string): string => {
-    const key = `${type}:${norm(value)}`;
+    // Case-exact key: "SANTOS" and "Santos" are separate vault entries so rehydration is lossless.
+    const key = `${type}:${value.replace(/\s+/g, " ")}`;
     const hit = byKey.get(key);
     if (hit) return hit;
     let ph: string | undefined;
     if (type === "PERSON") {
       for (const [p, original] of vault) {
-        if (/^\[\[PERSON_\d+\]\]$/.test(p) && nameVariants(original).some((v) => norm(v) === norm(value))) {
+        const sameOrPart = norm(original) === norm(value) || nameVariants(original).some((v) => norm(v) === norm(value));
+        if (/^\[\[PERSON_\d+\]\]$/.test(p) && sameOrPart) {
           const parent = p.slice(2, -2); // PERSON_n
           ph = `[[${parent}.${next(parent)}]]`;
           break;
@@ -159,7 +175,7 @@ export function leakGate(outbound: string, vault: Vault): GateResult {
     if (findAll(stripped, value).length) leaks.push({ type: "VAULT_VALUE", text: value });
     if (ph.startsWith("[[PERSON_"))
       for (const v of nameVariants(value))
-        if (findAll(stripped, v, true).length) leaks.push({ type: "VAULT_VALUE", text: v });
+        if (findNamePart(stripped, v).length) leaks.push({ type: "VAULT_VALUE", text: v });
   }
   return { ok: leaks.length === 0, leaks };
 }

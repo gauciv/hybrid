@@ -115,22 +115,27 @@ const ID_TYPES = new Set<PiiType>(["PASSPORT", "GOV_ID", "BANK", "PHONE", "EMAIL
 
 /** Clean a captured form value: drop blanks like "______", trailing punctuation, and trailing context. */
 function cleanValue(raw: string, type: PiiType): { offset: number; text: string } | null {
+  // A field that is entirely placeholder(s) is already redacted. If real text follows a placeholder,
+  // keep analysing that remainder (never skip a field just because it *starts* with a placeholder).
+  const lead = raw.match(/^(?:\s*\[\[[A-Z_]+_[\d.]+\]\])+/);
+  if (lead) {
+    const rest = cleanValue(raw.slice(lead[0].length), type);
+    return rest && { offset: rest.offset + lead[0].length, text: rest.text };
+  }
   // Cut at the next "Label:" on the same line (e.g. "Name: Maria Santos   Age: 34").
   const nextLabel = raw.search(/\s{2,}[A-Z][A-Za-z' ]{1,30}\s*[:：]|\t/);
   if (nextLabel === 0) return null; // empty field followed by another label
-  if (/^\s*\[\[[A-Z_]+_[\d.]+\]\]/.test(raw)) return null; // field already redacted
   let v = nextLabel > 0 ? raw.slice(0, nextLabel) : raw;
   // Identifiers are a single token: "EB7654321, issued Manila" → "EB7654321".
   // Names stop before a parenthetical or a non-name continuation: "Pedro Santos (husband), +63…" → "Pedro Santos".
   const cut =
     ID_TYPES.has(type) ? v.search(/,\s|\.\s|\s\(|\s{2,}/) :
     type === "PERSON" ? v.search(/\s*\(|,\s*(?=[^A-Z\s])|\s{2,}/) : -1;
-  if (cut > 0) v = v.slice(0, cut);
-  const lead = v.length - v.trimStart().length;
+  if (cut >= 0) v = v.slice(0, cut); // cut at 0 → nothing but trailing context → empty field
+  const ws = v.length - v.trimStart().length;
   v = v.trim().replace(/[\s_.,]+$/, "");
   if (!v || /^[_\-.\s]+$/.test(v)) return null;
-  if (/^\[\[[A-Z_]+_\d+\]\]$/.test(v)) return null; // already a placeholder
-  return { offset: lead, text: v };
+  return { offset: ws, text: v };
 }
 
 export function detectPatterns(text: string): Span[] {

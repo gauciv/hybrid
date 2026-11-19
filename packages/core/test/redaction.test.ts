@@ -162,3 +162,38 @@ describe("properties", () => {
     );
   });
 });
+
+describe("security review regressions", () => {
+  it("redacts an UPPERCASE surname appearing alone (signature blocks)", () => {
+    const text = "Name of Worker: Maria Santos\n...\nSIGNED: SANTOS\nWitness for Santos and MARIA.";
+    const { redacted, vault } = redact(text);
+    expect(redacted).not.toMatch(/santos|maria/i);
+    expect(rehydrate(redacted, vault)).toBe(text);
+  });
+
+  it("gate catches an uppercase name part re-inserted into the payload", () => {
+    const { vault } = redact("Name of Worker: Maria Santos");
+    expect(leakGate("Contract of MS. SANTOS", vault).ok).toBe(false);
+  });
+
+  it("does not skip a field that merely starts with a placeholder", () => {
+    const text = "Name of Worker: [[PERSON_1]] Maria Santos\nPassport No.: [[PASSPORT_1]] P1234567A";
+    const { redacted, vault } = redact(text);
+    expect(redacted).not.toContain("Maria Santos");
+    expect(redacted).not.toContain("P1234567A");
+    expect(leakGate(redacted, vault).ok).toBe(true);
+    expect(rehydrate(redacted, vault)).toBe(text);
+  });
+
+  it("generated placeholders never collide with placeholder-shaped text already in the input", () => {
+    const text = "Note [[PERSON_1]] here.\nName of Worker: Ana Reyes";
+    const { redacted, vault } = redact(text);
+    expect(vault.has("[[PERSON_1]]")).toBe(false);
+    expect(rehydrate(redacted, vault)).toBe(text);
+  });
+
+  it("gate flags leftover text after a placeholder in a labeled field", () => {
+    const { vault } = redact("Name of Worker: Ana Reyes");
+    expect(leakGate("Name of Worker: [[PERSON_1]] Ana", vault).ok).toBe(false);
+  });
+});
