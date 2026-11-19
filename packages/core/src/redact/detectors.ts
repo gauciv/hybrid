@@ -22,13 +22,13 @@ export const PATTERNS: PatternDetector[] = [
   { type: "EMAIL", re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
 
   // PH mobile: +63 917 123 4567 / 0917-123-4567 / 09171234567
-  { type: "PHONE", re: /(?:\+?63[\s-]?|\b0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}\b/g },
+  { type: "PHONE", re: /(?:\+?63[ \t-]?|\b0)9\d{2}[ \t-]?\d{3}[ \t-]?\d{4}\b/g },
   // PH landline: (02) 8123-4567
-  { type: "PHONE", re: /\(0\d{1,2}\)\s?\d{3,4}[\s-]?\d{4}\b/g },
+  { type: "PHONE", re: /\(0\d{1,2}\)[ \t]?\d{3,4}[ \t-]?\d{4}\b/g },
   // International with +country code: +966 55 123 4567, +971-50-123-4567, +852 9123 4567
   {
     type: "PHONE",
-    re: /\+\d{1,3}[\s.-]?\(?\d[\d\s().-]{6,16}\d/g,
+    re: /\+\d{1,3}[ \t.-]?\(?\d[\d \t().-]{6,16}\d/g,
     accept: (m) => digits(m) >= 8 && digits(m) <= 15,
   },
 
@@ -43,12 +43,12 @@ export const PATTERNS: PatternDetector[] = [
   { type: "GOV_ID", re: /\b\d{4}-\d{4}-\d{4}\b/g }, // Pag-IBIG MID
 
   // IBAN (Gulf banks use these heavily)
-  { type: "BANK", re: /\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){3,7}(?:\s?[A-Z0-9]{1,4})?\b/g },
+  { type: "BANK", re: /\b[A-Z]{2}\d{2}(?:[ \t]?[A-Z0-9]{4}){3,7}(?:[ \t]?[A-Z0-9]{1,4})?\b/g },
 
   // Any other long number (≥9 digits): account nos., Iqama, civil IDs, OEC… Not money.
   {
     type: "ID_NUMBER",
-    re: /\b\d[\d\s-]{7,}\d\b/g,
+    re: /\b\d[\d \t-]{7,}\d\b/g,
     accept: (m) => digits(m) >= 9 && !looksLikeMoney(m),
   },
 ];

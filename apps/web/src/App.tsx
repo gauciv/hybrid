@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { getGenerativeModel, InferenceMode } from "firebase/ai";
 import { ai } from "./firebase";
+import RedactionLab from "./RedactionLab";
 
 type Mode = (typeof InferenceMode)[keyof typeof InferenceMode];
 
@@ -99,6 +100,7 @@ export default function App() {
           {r.error ? <pre style={{ color: "crimson", whiteSpace: "pre-wrap" }}>{r.error}</pre> : <p>{r.text}</p>}
         </section>
       ))}
+      <RedactionLab />
     </main>
   );
 }
