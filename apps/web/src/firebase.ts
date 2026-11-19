@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { getAI, GoogleAIBackend } from "firebase/ai";
 
 // Web API keys are public identifiers, not secrets. Access is protected by App Check.
@@ -15,7 +15,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 
 // App Check: debug provider in dev (stable token or auto-generated),
-// reCAPTCHA v3 in production.
+// reCAPTCHA Enterprise ("Fraud Defense") in production. Free tier: 10k assessments/month, no billing.
 // The debug token lives in .env.development.local (gitignored, never loaded by production builds).
 if (import.meta.env.DEV) {
   (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN: string | boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN =
@@ -23,8 +23,8 @@ if (import.meta.env.DEV) {
 }
 
 initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider(
-    // Public reCAPTCHA v3 site key (safe to commit). Secret key lives only in the Firebase console.
+  provider: new ReCaptchaEnterpriseProvider(
+    // Public site key (safe to commit), registered for this app in App Check.
     import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LepDSguAAAAAFc9CLOzWt0pbVRXWlkWgkhKvQN8",
   ),
   isTokenAutoRefreshEnabled: true,
