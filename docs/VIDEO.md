@@ -26,7 +26,7 @@ Sample contract and post are fictional/synthetic and are labelled so on screen.
 | 9 | 1:47–2:05 | Architecture diagram (`docs/media/11-architecture.png`), highlight on-device column, then the arrow, then cloud | "This is the Airlock. With Firebase AI Logic, every call that sees the raw contract runs only on the device. The one cloud call runs only in the cloud, and the app checks where every answer actually came from." (On screen: `ONLY_ON_DEVICE` / `ONLY_IN_CLOUD` labels.) |
 | 10 | 2:05–2:17 | Review state on a laptop without Nano: "Please check before sending" → "Cover these too" | "And it fails closed. Nano is nondeterministic. Once, it missed a name. So a model-free scan runs on every request, and if something looks uncovered, or Nano isn't available, she covers it in one tap." |
 | 11 | 2:17–2:35 | Split: Chrome extension (right-click a synthetic recruiter post → side panel), then Android emulator | "The same tested engine runs everywhere: a Chrome extension that checks a recruiter's post offline with a right-click, and a native Android app. On Android, on-device Nano is built in but unverified; I had no supported phone, so here it uses the code layers and the cloud." |
-| 12 | 2:35–2:47 | **TUF clip T2**: lab at `/#lab`, same prompt ONLY_ON_DEVICE vs ONLY_IN_CLOUD timings. Then stat strip: 14× · 144 tests · zero red flags on DMW's own contracts | "On this laptop, on-device answered in [X] seconds, the cloud in [Y]. Every rule cites a real DMW document, and all of it runs on Firebase's free plan." **Fill X/Y from what T2 actually shows** (cloud latency varies: 7.3 s cold on 2026-11-19, 1.4 s warm on 2026-11-20; if cloud wins, say "and the raw contract never left the laptop" instead of comparing speed). |
+| 12 | 2:35–2:47 | **TUF clip T2**: lab at `/#lab`, same prompt ONLY_ON_DEVICE vs ONLY_IN_CLOUD timings. Then stat strip: 14× · 144 tests · zero red flags on DMW's own contracts | "On this laptop, on-device answered in 1.8 seconds, the cloud in 6.2 seconds. Every rule cites a real DMW document, and all of it runs on Firebase's free plan." **Fill X/Y from what T2 actually shows** (cloud latency varies: 7.3 s cold on 2026-11-19, 1.4 s warm on 2026-11-20; if cloud wins, say "and the raw contract never left the laptop" instead of comparing speed). |
 | 13 | 2:47–2:53 | End card: wordmark, *Check the contract before you sign.*, kontrata-hybrid.web.app, github.com/gauciv/kontrata | "Kontrata. Check the contract before you sign." |
 
 ---
@@ -99,13 +99,41 @@ The site films itself: `apps/web/src/demo/autopilot.ts`, live on https://kontrat
 10. And it fails closed. Nano is nondeterministic. Once, it missed a name. So a model-free scan runs on every request, and if something looks uncovered, or Nano isn't available, she covers it in one tap.
 11. The same tested engine runs everywhere: a Chrome extension that checks a recruiter's post offline with a right-click, and a native Android app. On Android, on-device Nano is built in but unverified; I had no supported phone, so here it uses the code layers and the cloud.
 12. Open your **Lab** clip and note the two numbers (on-device ms, cloud ms; e.g. 1517 ms ≈ "one point five seconds").
-    - `12a.mp3`: On this laptop, on-device answered in **[on-device]** seconds, the cloud in **[cloud]**. Every rule cites a real DMW document, and all of it runs on Firebase's free plan.
+    - `12a.mp3`: On this laptop, on-device answered in 1.8 seconds, the cloud in 6.2 seconds. Every rule cites a real DMW document, and all of it runs on Firebase's free plan.
     - `12b.mp3`: On this laptop, the on-device model answered in **[on-device]** seconds, without the contract ever leaving it. Every rule cites a real DMW document, and all of it runs on Firebase's free plan.
     - I'll use 12a if on-device was clearly faster in the clip, otherwise 12b.
 13. Kontrata. Check the contract before you sign.
 
 **Then:** copy the voice files into `docs/media/video/voice/` and the three .webm takes into `docs/media/video/clips/`
 (keep their names), and tell me. Optional but welcome: if any take or line felt off, tell me which.
+
+## Pickup shots: real upload + extension on a social post (screen recordings)
+
+The autopilot records only the page, so these two need a normal screen recording (they involve Chrome's own UI:
+file picker, right-click menu, side panel). They replace the "Try a sample" moment (row 5) and the extension
+still image (row 11). **No new voice lines needed.** Save as `docs/media/video/clips/upload.mp4` and `extension.mp4`.
+
+**Recorder:** OBS (free). *Sources → + → Display Capture*, *Settings → Video*: 1920×1080, 30 fps,
+*Settings → Output*: Recording format mp4 (or mkv). On Windows, Xbox Game Bar (Win+Alt+R) also works but may miss the file picker.
+Before each take: close other tabs, hide the bookmarks bar (Ctrl+Shift+B), turn on Do Not Disturb, move the mouse slowly
+and pause ~1 s after each click. 2–3 takes each is fine; I'll pick.
+
+**P1 upload (on the TUF, so Gemini Nano reads it), ~30 s**
+1. Get a contract photo onto the TUF. Most convincing: open the sample photo
+   (https://kontrata-hybrid.web.app/samples/sample-contract-photo.png) full-screen on another screen or print it,
+   snap it with your phone, send the photo to the TUF (Messenger/Drive as a file). Backup: just download that PNG.
+2. Open https://kontrata-hybrid.web.app (Taglish), F11. Start recording.
+3. Click **Mag-upload** → pick the photo in the file window → wait while it reads (I'll speed this part up) →
+   let the text and preview show for 2 s → click **I-check** → hold on the results for 3 s. Stop.
+   If the phone photo reads badly, that's OK to show (it says "proofread"); otherwise use the PNG take.
+
+**P2 extension on a social post (any laptop, incl. this one), ~25 s**
+1. Install the extension: download the zip from https://github.com/gauciv/kontrata/releases/tag/v0.1.0, unzip,
+   `chrome://extensions` → Developer mode → Load unpacked (on this laptop: `apps/extension/dist`). Pin it if you like.
+2. Open https://kontrata-hybrid.web.app/demo/post.html (a neutral sample feed; the post is synthetic and labelled), F11,
+   Ctrl+plus once (zoom 110–125%) so the post is big. Start recording.
+3. Slowly drag-select the whole "URGENT HIRING" post text → right-click the selection → **I-check sa Kontrata** →
+   the side panel opens with the red flags → scroll the panel slowly to the bottom → hold 2 s. Stop.
 
 ## Assembly (Claude)
 ffmpeg: 1920×1080 30 fps H.264 + AAC, burned-in captions (Public Sans), gentle zooms on key UI, 0.3 s crossfades,

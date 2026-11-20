@@ -32,5 +32,6 @@ apps/android/build/
 # Demo video: voice recordings, screen clips and renders stay local (large, personal)
 docs/media/video/*
 !docs/media/video/build.py
+!docs/media/video/gen_music.py
 !docs/media/video/cards/
 docs/media/video/cards/*.png

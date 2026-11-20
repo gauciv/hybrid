@@ -53,9 +53,9 @@ def still(png, seconds, zoom=0.035, label=None):
 def render_piece(p, out):
     if "png" in p:
         n = max(1, round(p["seconds"] * FPS))
-        z = f"zoompan=z='1+{p['zoom']}*on/{n}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={n}:s=1920x1080:fps={FPS}"
-        vf = f"scale=3840:-1,{z}" + (f",{drawtext(p['label'])}" if p["label"] else "")
-        run(["-i", p["png"], "-vf", vf, "-frames:v", str(n), "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "16", "-preset", "medium", out])
+        # Perfectly still (a slow zoom here jittered: zoompan moves in whole pixels).
+        vf = "scale=1920:1080" + (f",{drawtext(p['label'])}" if p["label"] else "")
+        run(["-loop", "1", "-framerate", str(FPS), "-i", p["png"], "-vf", vf, "-frames:v", str(n), "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "16", "-preset", "medium", out])
     else:
         w, h, x, y = p["crop"]
         vf = f"crop={w}:{h}:{x}:{y},scale=1920:1080:flags=lanczos,setpts=(PTS-STARTPTS)/{p['speed']},fps={FPS}"
@@ -174,6 +174,16 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             ev.append(f"Dialogue: 0,{ts(t)},{ts(t + d - 0.05)},Cap,,0,0,0,,{c}")
             t += d
     open("work/captions.ass", "w").write(head + "\n".join(ev) + "\n")
+    # Same cues as an .srt for YouTube's CC track (translation, search).
+    def srt_ts(x):
+        return f"{int(x // 3600):02d}:{int(x % 3600 // 60):02d}:{int(x % 60):02d},{int(round(x % 1 * 1000)) % 1000:03d}"
+    cues = []
+    for line in ev:
+        _, a, b, *_rest = line.split(",", 9)
+        text = line.split(",,0,0,0,,", 1)[1]
+        to_s = lambda v: sum(float(x) * m for x, m in zip(v.split(":"), (3600, 60, 1)))
+        cues.append(f"{len(cues) + 1}\n{srt_ts(to_s(a))} --> {srt_ts(to_s(b))}\n{text}\n")
+    open("kontrata-demo.en.srt", "w").write("\n".join(cues))
 
 
 def main():
@@ -199,8 +209,15 @@ def main():
     mix = ";".join(fl) + ";" + "".join(f"[a{i}]" for i in range(len(ROWS))) + \
         f"amix=inputs={len(ROWS)}:normalize=0,apad,atrim=0:{total:.3f},loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[out]"
     run([*ins, "-filter_complex", mix, "-map", "[out]", "-ac", "2", "-c:a", "pcm_s16le", "work/narration.wav"])
+    # Background music: generated (gen_music.py), softened, kept ~20 dB under the voice and ducked further while she speaks.
+    subprocess.run([sys.executable, "gen_music.py", f"{total:.2f}", "work/music-raw.wav"], check=True)
+    run(["-i", "work/narration.wav", "-i", "work/music-raw.wav", "-filter_complex",
+         "[1]lowpass=f=2800,aecho=0.8:0.6:70|150|290:0.22|0.15|0.08,loudnorm=I=-35:LRA=7,aresample=48000[m];"
+         "[0]asplit[v][key];[m][key]sidechaincompress=threshold=0.015:ratio=4:attack=120:release=900:makeup=1[md];"
+         "[v][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.89[out]",
+         "-map", "[out]", "-c:a", "pcm_s16le", "work/mix.wav"])
     fontsdir = os.path.dirname(FONT)
-    run(["-i", "work/video-silent.mp4", "-i", "work/narration.wav",
+    run(["-i", "work/video-silent.mp4", "-i", "work/mix.wav",
          "-vf", f"subtitles=work/captions.ass:fontsdir={fontsdir}",
          "-c:v", "libx264", "-crf", "18", "-preset", "slow", "-pix_fmt", "yuv420p", "-r", str(FPS),
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", "kontrata-demo.mp4"])
