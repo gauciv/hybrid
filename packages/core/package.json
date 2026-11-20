@@ -8,7 +8,8 @@
   "types": "src/index.ts",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:bridge": "vite build --config vite.bridge.config.ts"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

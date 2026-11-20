@@ -17,7 +17,10 @@ export const NER_CHUNK_CHARS = 2500;
 /** Fresh random delimiter per call: the (attacker-controlled) document cannot predict or close it. */
 function nonce(): string {
   const b = new Uint8Array(12);
-  globalThis.crypto.getRandomValues(b);
+  // Android's JavaScriptSandbox may not expose Web Crypto; the fence only needs to be unpredictable to the
+  // document's author, so Math.random is an acceptable fallback there.
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(b);
+  else for (let i = 0; i < b.length; i++) b[i] = Math.floor(Math.random() * 256);
   return [...b].map((x) => (x % 36).toString(36)).join("");
 }
 

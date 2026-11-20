@@ -23,3 +23,8 @@ google-services.json
 # Private, unredacted source material
 docs/sources/private/
 apps/extension/*.zip
+# Android
+apps/android/local.properties
+apps/android/.gradle/
+apps/android/app/build/
+apps/android/build/

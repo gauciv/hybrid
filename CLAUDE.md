@@ -99,4 +99,11 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   discarded (fixes race bug). Caching (`apps/web/src/cache.ts`): NER + readings memory-only; cloud responses sessionStorage
   (placeholders only) → repeat explain 8.6 s → 0.25 s. Fixed OCR single-space field bug (passport swallowed phone). 136 tests.
   TUF test of sample photo: on-device NER 2.9 s, 4 findings correct.
-  **Next:** decide Android (emulator-only testing) → write-up + video script (redacted clauses vs SEC, explains in TL/CEB/EN) → product UI. (needs docs/sources) → real product UI (frontend-design).
+- Android ✓ (`apps/android`, Kotlin+Compose, AGP 8.13.1 / Kotlin 2.4.0 / Gradle 9.3.1, package io.github.gauciv.kontrata):
+  runs the SAME core engine in Jetpack JavaScriptSandbox via `packages/core/src/bridge.ts` → `npm -w packages/core run
+  build:bridge` → assets/kontrata-core.js. UI copy moved to packages/core/src/ui/i18n.ts (shared by web, extension, Android).
+  Firebase AI hybrid: Nano ONLY_ON_DEVICE for NER + photo (fallback ML Kit OCR), cloud ONLY_IN_CLOUD for explanation.
+  App Check debug token registered for the Android app, kept in apps/android/local.properties (gitignored) → BuildConfig.
+  Emulator needs `-memory 3072` (low-memory killer otherwise). Verified E2E on emulator incl. Taglish cloud explanation.
+  On-device Nano on Android NOT verifiable (no supported phone) → say so in video/write-up.
+  **Next:** Android photo test → write-up + video script

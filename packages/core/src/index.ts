@@ -14,3 +14,5 @@ export type { Citation, CitationId } from "./rules/sources";
 export { findAmounts, toUsd, DEFAULT_RATES } from "./rules/money";
 export { buildDeepCheckPrompt, parseDeepCheck, DEEP_CHECK_SCHEMA } from "./cloud/deepCheck";
 export type { DeepCheckResult, DeepClause, DeepLang, ClauseStatus } from "./cloud/deepCheck";
+export { T } from "./ui/i18n";
+export type { UiLang } from "./ui/i18n";
