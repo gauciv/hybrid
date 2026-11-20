@@ -13,3 +13,5 @@ const isLab = hash === "#lab" || hash === "#demo-lab";
 createRoot(document.getElementById("root")!).render(<StrictMode>{isLab ? <App /> : <Product />}</StrictMode>);
 
 if (demo) void import("./demo/autopilot").then((m) => m.mount(hash));
+// Typing another #demo… URL only changes the hash, which doesn't reload the page: reload so the right scene loads.
+addEventListener("hashchange", () => /^#demo(-en|-lab)?$/.test(location.hash) && location.reload());

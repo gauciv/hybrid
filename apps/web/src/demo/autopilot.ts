@@ -138,10 +138,36 @@ async function product(lang: "tl" | "en") {
   }
 
   // If this machine has no Nano (or Nano missed something), the honest path: cover suspects, confirm.
-  const cover = byText(".k-review button", L ? "Takpan" : "Cover");
-  if (cover) await click(cover, 1500);
-  const confirm = document.querySelector<HTMLInputElement>(".k-confirm input");
-  if (confirm && !confirm.checked) await click(confirm, 1000);
+  // This is the "fails closed" moment: give it screen time.
+  const review = document.querySelector(".k-review");
+  if (review) {
+    await scrollBy(review.getBoundingClientRect().top - innerHeight * 0.2, 1400);
+    await sleep(800);
+    await moveTo(review.querySelector("h3") ?? review, 800);
+    await sleep(2500);
+    const suspects = review.querySelector(".k-suspects");
+    if (suspects) {
+      await moveTo(suspects, 800);
+      await sleep(3500); // let the viewer read the names that were caught
+    }
+    const cover = byText(".k-review button", L ? "Takpan" : "Cover");
+    if (cover) {
+      await click(cover, 1200);
+      // Show the result: the names are now ink bars in what the cloud will see.
+      const payload = document.querySelector(".k-payload");
+      if (payload) {
+        await scrollBy(payload.getBoundingClientRect().top - 110, 1400);
+        await sleep(600);
+        await moveTo(payload.querySelector(".k-bar") ?? payload, 900);
+        await sleep(3500);
+      }
+    }
+    const confirm = await waitFor(() => document.querySelector<HTMLInputElement>(".k-confirm input"), 3000, "confirm").catch(() => null);
+    if (confirm && !confirm.checked) {
+      await click(confirm, 400);
+      await sleep(1800);
+    }
+  }
 
   // Detailed explanation from the cloud.
   const explain = await waitFor(() => byText(".k-deep-controls .k-btn", L ? "Ipaliwanag" : "Explain"), 5000, "explain button");
@@ -216,19 +242,48 @@ async function record(run: () => Promise<void>, name: string) {
   if (error) throw error;
 }
 
+const SCENARIOS: [Scenario, string, string][] = [
+  ["product-tl", "Product · Taglish", "#demo"],
+  ["product-en", "Product · English", "#demo-en"],
+  ["lab", "Lab · on-device vs cloud", "#demo-lab"],
+];
+
 export function mount(hash: string) {
   const scenario: Scenario = hash === "#demo-lab" ? "lab" : hash === "#demo-en" ? "product-en" : "product-tl";
   const run = scenario === "lab" ? lab : () => product(scenario === "product-en" ? "en" : "tl");
-  history.replaceState(null, "", location.pathname); // keep the address bar clean on film
 
   const panel = document.createElement("div");
   panel.style.cssText = `position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1c2733;color:#e7ecea;
-    font:600 14px/1.4 system-ui,sans-serif;padding:14px;border-radius:8px;display:grid;gap:8px;max-width:280px;box-shadow:0 6px 24px #0004`;
-  panel.innerHTML = `<div>Demo autopilot: <b>${scenario}</b><br><span style="font-weight:400;opacity:.8">Fullscreen first (F11). Then pick "This tab" when asked.</span></div>`;
-  const btn = (label: string, fn: () => void) => {
+    font:600 14px/1.4 system-ui,sans-serif;padding:14px;border-radius:8px;display:grid;gap:8px;width:290px;box-shadow:0 6px 24px #0004`;
+  const head = document.createElement("div");
+  head.textContent = "Demo autopilot";
+  const hint = document.createElement("div");
+  hint.style.cssText = "font-weight:400;opacity:.8";
+  hint.textContent = 'Pick a scene, press F11 (fullscreen), then Start recording and choose "This tab".';
+  panel.append(head, hint);
+
+  // Scene picker. The lab is a different page, so switching scenes reloads (a hash change alone would not).
+  const picker = document.createElement("div");
+  picker.style.cssText = "display:grid;gap:4px;padding:6px 0";
+  for (const [id, label, h] of SCENARIOS) {
+    const b = document.createElement("button");
+    b.textContent = (id === scenario ? "● " : "○ ") + label;
+    b.style.cssText = `font:inherit;font-weight:${id === scenario ? 700 : 400};text-align:left;padding:6px 8px;border-radius:5px;cursor:pointer;
+      border:1px solid ${id === scenario ? "#e7ecea" : "#e7ecea44"};background:transparent;color:#e7ecea`;
+    b.onclick = () => {
+      if (id === scenario) return;
+      location.hash = h;
+      location.reload();
+    };
+    picker.append(b);
+  }
+  panel.append(picker);
+
+  const btn = (label: string, fn: () => void, primary = false) => {
     const b = document.createElement("button");
     b.textContent = label;
-    b.style.cssText = "font:inherit;padding:8px 10px;border-radius:5px;border:0;cursor:pointer;background:#e7ecea;color:#1c2733";
+    b.style.cssText = `font:inherit;padding:8px 10px;border-radius:5px;border:0;cursor:pointer;
+      background:${primary ? "#e7ecea" : "#ffffff22"};color:${primary ? "#1c2733" : "#e7ecea"}`;
     b.onclick = fn;
     panel.append(b);
   };
@@ -245,7 +300,7 @@ export function mount(hash: string) {
       cursor.remove();
     }
   };
-  btn("● Start recording", () => void go(true));
+  btn("● Start recording", () => void go(true), true);
   btn("Practice run (no recording)", () => void go(false));
   document.body.append(panel);
 }

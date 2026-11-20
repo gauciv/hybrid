@@ -49,12 +49,10 @@ Sample contract and post are fictional/synthetic and are labelled so on screen.
 The site films itself: `apps/web/src/demo/autopilot.ts`, live on https://kontrata-hybrid.web.app. Nothing to install or clone.
 1. Plug in power, close other apps. Chrome (your normal profile, where Nano is downloaded), one tab, zoom 100%.
 2. Warm Nano once: open https://kontrata-hybrid.web.app, Subukan ang sample → Photo ng contract → I-check. Close the tab.
-3. **T1:** open `https://kontrata-hybrid.web.app/#demo` → press **F11** (fullscreen) → click **● Start recording** →
-   choose **This tab** → Share. Hands off the mouse. It loads the sample photo, reads it with Nano, checks, shows the
-   Airlock, explains in Taglish, scrolls to the questions, then downloads `kontrata-product-tl-*.webm` (about 1:30).
-   `#demo-en` does the same in English (record it too: gives us English UI shots for captions).
-4. **T2:** open `https://kontrata-hybrid.web.app/#demo-lab` → F11 → Start recording → This tab. It initializes Nano, runs
-   the same prompt ONLY_ON_DEVICE then ONLY_IN_CLOUD, and downloads `kontrata-lab-*.webm`.
+3. Open **https://kontrata-hybrid.web.app/#demo**. A dark "Demo autopilot" panel appears bottom-right with three scenes:
+   **Product · Taglish**, **Product · English**, **Lab · on-device vs cloud**. Click a scene (the page reloads into it).
+4. Press **F11** → **● Start recording** → choose **This tab** → Share. Hands off the mouse until the .webm downloads.
+   Record all three scenes (T1 = Taglish, T1-en = English, T2 = Lab). Refreshing keeps the panel.
 5. Check the T1 file shows "On-device AI looked for names (… seconds)" under the heading. If it shows the "Please check
    before sending" box instead, Nano didn't run: redo step 2 and record again.
 6. Use **Practice run** first if you want to watch without recording. Send me the .webm files (Drive/USB/git-ignored folder).
