@@ -27,7 +27,7 @@ Sample contract and post are fictional/synthetic and are labelled so on screen.
 | 10 | 2:05–2:17 | Review state on a laptop without Nano: "Please check before sending" → "Cover these too" | "And it fails closed. Nano is nondeterministic. Once, it missed a name. So a model-free scan runs on every request, and if something looks uncovered, or Nano isn't available, she covers it in one tap." |
 | 11 | 2:17–2:35 | Split: Chrome extension (right-click a synthetic recruiter post → side panel), then Android emulator | "The same tested engine runs everywhere: a Chrome extension that checks a recruiter's post offline with a right-click, and a native Android app. On Android, on-device Nano is built in but unverified; I had no supported phone, so here it uses the code layers and the cloud." |
 | 12 | 2:35–2:47 | **TUF clip T2**: lab at `/#lab`, same prompt ONLY_ON_DEVICE vs ONLY_IN_CLOUD timings. Then stat strip: 14× · 144 tests · zero red flags on DMW's own contracts | "On this laptop, on-device answered in [X] seconds, the cloud in [Y]. Every rule cites a real DMW document, and all of it runs on Firebase's free plan." **Fill X/Y from what T2 actually shows** (cloud latency varies: 7.3 s cold on 2026-11-19, 1.4 s warm on 2026-11-20; if cloud wins, say "and the raw contract never left the laptop" instead of comparing speed). |
-| 13 | 2:47–2:53 | End card: wordmark, *Check the contract before you sign.*, kontrata-hybrid.web.app, github.com/gauciv/hybrid | "Kontrata. Check the contract before you sign." |
+| 13 | 2:47–2:53 | End card: wordmark, *Check the contract before you sign.*, kontrata-hybrid.web.app, github.com/gauciv/kontrata | "Kontrata. Check the contract before you sign." |
 
 ---
 

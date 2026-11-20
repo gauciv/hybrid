@@ -299,6 +299,20 @@ export function mount(hash: string) {
     } finally {
       cursor.remove();
     }
+    // A take needs a fresh page: offer it right here instead of making the user reopen the URL.
+    const done = document.createElement("div");
+    done.style.cssText = panel.style.cssText;
+    const msg = document.createElement("div");
+    msg.textContent = rec ? "Take finished. Check your Downloads folder." : "Practice run finished.";
+    const again = document.createElement("button");
+    again.textContent = "↻ New take (same scene)";
+    again.style.cssText = "font:inherit;padding:8px 10px;border-radius:5px;border:0;cursor:pointer;background:#e7ecea;color:#1c2733";
+    again.onclick = () => {
+      location.hash = SCENARIOS.find(([id]) => id === scenario)![2];
+      location.reload();
+    };
+    done.append(msg, again);
+    document.body.append(done);
   };
   btn("● Start recording", () => void go(true), true);
   btn("Practice run (no recording)", () => void go(false));

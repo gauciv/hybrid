@@ -32,7 +32,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
 - Dev machine: Arch Linux, Chrome 157, Intel UHD iGPU, ~16 GB RAM: borderline for Nano. **Verify Nano actually runs.**
 
 ## Status log
-- 2026-11-19: Spec + sources checklist + LICENSE pushed to https://github.com/gauciv/hybrid. `firebase login` done.
+- 2026-11-19: Spec + sources checklist + LICENSE pushed to https://github.com/gauciv/kontrata. `firebase login` done.
   MCPs connected: firebase, chrome-devtools, mobile, context7, playwright.
 - 2026-11-19 (later): Firebase project `kontrata-hybrid` (Spark) + web app + AI Logic provisioned (Gemini Developer API).
   Hybrid lab page (`apps/web/src/App.tsx`) deployed to https://kontrata-hybrid.web.app. Cloud path ✓, PREFER_ON_DEVICE→cloud fallback ✓.

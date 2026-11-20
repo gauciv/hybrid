@@ -6,7 +6,17 @@ import Product from "./product/Product.tsx";
 
 // The product is the default. The developer lab (hybrid tests, benchmarks) lives at /#lab.
 // /#demo, /#demo-en and /#demo-lab load the demo autopilot (films the real app; see src/demo/autopilot.ts).
-const hash = location.hash;
+// Filming: remember the demo scene for this tab, so a plain refresh brings the autopilot back.
+let hash = location.hash;
+try {
+  if (/^#demo(-en|-lab)?$/.test(hash)) sessionStorage.setItem("k-demo", hash);
+  else if (!hash && sessionStorage.getItem("k-demo")) {
+    hash = sessionStorage.getItem("k-demo")!;
+    history.replaceState(null, "", location.pathname + location.search + hash);
+  }
+} catch {
+  /* storage blocked: the #demo URL still works */
+}
 const demo = /^#demo(-en|-lab)?$/.test(hash);
 const isLab = hash === "#lab" || hash === "#demo-lab";
 
