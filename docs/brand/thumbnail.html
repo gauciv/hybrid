@@ -1,0 +1,57 @@
+<!doctype html>
+<!-- Devpost thumbnail source (3:2, rendered at 1500x1000). Same tokens/fonts as the app (docs/DESIGN.md). -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: "Public Sans"; src: url("../../apps/android/app/src/main/res/font/public_sans.ttf"); font-weight: 100 900; }
+  @font-face { font-family: "IBM Plex Serif"; src: url("../../apps/android/app/src/main/res/font/ibm_plex_serif.ttf"); }
+  :root { --paper:#f5f6f4; --sheet:#fff; --ink:#1c2733; --ink2:#4a5560; --ledger:#1f4e5f; --rule:#d5dad6; --rule2:#aeb6b1; --red:#9e2a2b; --device:#eef2ef; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1500px; height: 1000px; background: var(--paper); color: var(--ink); font-family: "Public Sans"; overflow: hidden; }
+  .wrap { display: grid; grid-template-columns: 600px 1fr; gap: 64px; padding: 70px 80px; height: 100%; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 20px; font-weight: 700; font-size: 54px; letter-spacing: -0.01em; }
+  h1 { font-size: 88px; line-height: 1.04; font-weight: 680; letter-spacing: -0.03em; margin-top: 48px; }
+  p.sub { margin-top: 30px; font-size: 31px; line-height: 1.45; color: var(--ink2); max-width: 30ch; }
+  .lock { margin-top: 40px; display: flex; gap: 14px; align-items: center; font-size: 27px; font-weight: 600; color: var(--ledger); }
+  .doc { background: var(--sheet); border: 1.5px solid var(--rule2); border-radius: 6px; box-shadow: 0 30px 60px -30px rgba(28,39,51,.25); overflow: hidden; }
+  .doc .body { padding: 44px 44px 36px; font-family: "IBM Plex Serif"; font-size: 30px; line-height: 2.05; }
+  .bar { display: inline-block; background: var(--ink); color: #e7ecea; font-family: "Public Sans"; font-weight: 600; font-size: 21px; line-height: 1; padding: 9px 12px 8px; border-radius: 3px; vertical-align: 2px; }
+  .flag { display: grid; grid-template-columns: 32px 1fr; align-items: start; gap: 14px; border-top: 1px solid var(--rule); padding: 22px 44px; background: #fbf7f6; }
+  .flag b { display: block; font-size: 22px; color: var(--red); font-weight: 600; }
+  .flag span { font-size: 30px; font-weight: 650; }
+  .vault { border-top: 1.5px dashed var(--rule2); background: var(--device); padding: 20px 44px; font-size: 23px; color: var(--ink2); display: flex; align-items: center; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <div class="brand">
+      <svg width="48" height="58" viewBox="0 0 22 26" aria-hidden="true"><path d="M2 1h12l6 6v18H2z" fill="none" stroke="#1c2733" stroke-width="1.6"/><path d="M14 1v6h6" fill="none" stroke="#1c2733" stroke-width="1.6"/><rect x="5.5" y="11" width="11" height="1.5" fill="#aeb6b1"/><rect x="5.5" y="15" width="11" height="3.2" fill="#1c2733"/><rect x="5.5" y="20.6" width="7" height="1.5" fill="#aeb6b1"/></svg>
+      Kontrata
+    </div>
+    <h1>Check the contract before you sign.</h1>
+    <p class="sub">For Filipinos going to work abroad. Compared against DMW rules, explained in Taglish.</p>
+    <div class="lock">
+      <svg width="32" height="32" viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="8.5" width="13" height="9.5" rx="1.5" fill="none" stroke="#1f4e5f" stroke-width="1.6"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#1f4e5f" stroke-width="1.6"/></svg>
+      Personal details never leave your device
+    </div>
+  </div>
+  <div class="doc">
+    <div class="body">
+      Between Mr. <span class="bar">Person 1</span> and <span class="bar">Person 2</span><br/>
+      Passport No.: <span class="bar">Passport 1</span><br/>
+      <span class="bar">Person 1</span> shall keep the<br/>Worker's passport.
+    </div>
+    <div class="flag">
+      <svg width="30" height="30" viewBox="0 0 18 18" aria-hidden="true"><rect x="3.3" y="3.3" width="11.4" height="11.4" transform="rotate(45 9 9)" fill="#9e2a2b"/><rect x="8.2" y="4.6" width="1.6" height="5.4" fill="#fff"/><rect x="8.2" y="11.2" width="1.6" height="1.6" fill="#fff"/></svg>
+      <div><b>Labag sa rules</b><span>Kukunin o itatago ang passport mo</span></div>
+    </div>
+    <div class="vault">
+      <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="8.5" width="13" height="9.5" rx="1.5" fill="none" stroke="#1f4e5f" stroke-width="1.8"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#1f4e5f" stroke-width="1.8"/></svg>
+      The cloud only sees the bars.
+    </div>
+  </div>
+</div>
+</body>
+</html>
