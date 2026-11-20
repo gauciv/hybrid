@@ -25,9 +25,10 @@ def run(args):
         sys.exit("ffmpeg failed: " + " ".join(args))
 
 
-ROWS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12a", "13"]
+# Row 06 is split so its second sentence lands on "What the cloud will see", following the page top to bottom.
+ROWS = ["01", "02", "03", "04", "05", "06a", "07", "06b", "08", "09", "10", "11", "12a", "13"]
 LEAD = {"01": 0.9}           # silence before the voice starts in a scene
-TAIL = {"13": 2.6}           # extra hold after the voice
+TAIL = {"13": 2.6, "08": 2.6}           # extra hold after the voice
 VO = {r: dur(f"work/vo2/{r}.wav") for r in ROWS}
 D = {r: round(LEAD.get(r, 0.2) + VO[r] + TAIL.get(r, 0.35), 3) for r in ROWS}
 
@@ -51,8 +52,21 @@ def still(png, seconds, zoom=0.035, label=None):
     return dict(png=png, seconds=seconds, zoom=zoom, label=label)
 
 
+def reveal(a, b, seconds, at, fade=0.7):
+    """Still a, cross-fading into still b at `at` seconds (same layout, so only the new part appears)."""
+    return dict(reveal=(a, b), seconds=seconds, at=at, fade=fade)
+
+
 def render_piece(p, out):
-    if "png" in p:
+    if "reveal" in p:
+        a, b = p["reveal"]
+        n = max(1, round(p["seconds"] * FPS))
+        run(["-loop", "1", "-framerate", str(FPS), "-t", str(p["seconds"]), "-i", a,
+             "-loop", "1", "-framerate", str(FPS), "-t", str(p["seconds"]), "-i", b,
+             "-filter_complex", f"[0]scale=1920:1080,format=yuv420p[a];[1]scale=1920:1080,format=yuv420p[b];"
+             f"[a][b]xfade=transition=fade:duration={p['fade']}:offset={p['at']}",
+             "-frames:v", str(n), "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "16", "-preset", "medium", out])
+    elif "png" in p:
         n = max(1, round(p["seconds"] * FPS))
         # Perfectly still (a slow zoom here jittered: zoompan moves in whole pixels).
         vf = "scale=1920:1080" + (f",{drawtext(p['label'])}" if p["label"] else "")
@@ -66,25 +80,36 @@ def render_piece(p, out):
 
 
 REAL = "Real recording · Gemini Nano in Chrome · mid-range laptop"
+# Product walkthrough = ONE continuous take, top to bottom; only the playback speed changes between rows.
+P0 = (1440, 810, 240, 0)                                  # top of the page (header + composer)
+P = (1440, 810, 240, 135)                                 # page body, incl. the full questions box at the end
+PAN = (1440, 810, 240, "min(135\\,135*n/75)")            # smooth pan between the two
+fit = lambda t0, t1, row, extra=0.0: (t1 - t0) / (D[row] - extra)   # speed so the source fills the row exactly
 SCENES = {
     "01": [still("cards/q1.png", D["01"])],
-    "02": [still("cards/q2.png", 7.0), still("cards/rule.png", D["02"] - 7.0)],
-    # rule card continues seamlessly from scene 02 until "...arrives as a photo"; boxes appear on "carries"
-    "03": [still("cards/rule.png", 3.75), still("cards/photo.png", 3.35), still("cards/photohl.png", D["03"] - 7.1)],
-    "04": [clip(TL, 0.0, 4.4, speed=0.56, label=REAL)],
-    "05": [clip(TL, 4.4, 9.0, label=REAL), clip(TL, 9.0, 31.0, speed=8, label="Reading the photo on the device · 8× speed"), clip(TL, 31.0, 34.5, label=REAL)],
-    "06": [clip(TL, 37.0, 44.6, crop=(1120, 630, 390, 20), label=REAL), clip(TL, 58.0, 63.0, label="What the cloud will see")],
-    "07": [clip(TL, 44.6, 57.0, speed=0.78, label="Offline DMW rule checks")],
-    "08": [clip(TL, 66.0, 70.0, crop=MID, label="Cloud: anonymous text only"), clip(TL, 70.0, 78.0, speed=4, crop=MID, label="Gemini in the cloud · 4× speed"), clip(TL, 78.0, 98.2, speed=1.87, label="Explained in Taglish · names restored on the device")],
+    # the rule fades in UNDER Eliza's quote, after "...it wasn't allowed", and stays into scene 03
+    "02": [reveal("cards/q2.png", "cards/q2rule.png", D["02"], at=7.25)],
+    "03": [still("cards/q2rule.png", 3.75), still("cards/photo.png", 3.35), still("cards/photohl.png", D["03"] - 7.1)],
+    "04": [clip(TL, 0.0, 4.4, speed=0.56, crop=P0, label=REAL)],
+    "05": [clip(TL, 4.4, 9.0, crop=PAN, label=REAL), clip(TL, 9.0, 31.0, speed=8, crop=P, label="Reading the photo on the device · 8× speed"),
+           clip(TL, 31.0, 34.5, speed=fit(31.0, 34.5, "05", 4.6 + 22.0 / 8), crop=P, label=REAL)],
+    "06a": [clip(TL, 34.5, 44.6, speed=fit(34.5, 44.6, "06a"), crop=P, label=REAL)],          # click I-check -> results (2.0 s)
+    "07": [clip(TL, 44.6, 57.0, speed=fit(44.6, 57.0, "07"), crop=P, label="Offline DMW rule checks · real recording")],
+    "06b": [clip(TL, 57.0, 62.5, speed=fit(57.0, 62.5, "06b"), crop=P, label="What the cloud will see · real recording")],
+    "08": [clip(TL, 62.5, 70.0, speed=1.4, crop=P, label="Cloud: anonymous text only"),
+           clip(TL, 70.0, 78.0, speed=8, crop=P, label="Gemini in the cloud · 8× speed"),
+           clip(TL, 78.0, 98.2, speed=fit(78.0, 98.2, "08", 7.5 / 1.4 + 1.0), crop=P, label="Explained in Taglish · names restored on the device")],
     "09": [still("cards/diagram.png", D["09"], 0.06)],
     "10": [clip(REVIEW, 41.0, 58.5, speed=1.25, crop=(1280, 720, 170, 150), label="Recorded on a laptop WITHOUT on-device AI")],
     "11": [clip(EXT, 1.0, 12.0, speed=1.25, crop=(1920, 1080, 0, 0), label="Chrome extension · real extension code, offline · sample feed, menu drawn for the video"),
            still("cards/android.png", D["11"] - 8.8, label="Android app · Kotlin + Compose · same engine")],
-    "12": [clip(LAB, 3.0, 12.0, speed=1.12, label="Same prompt · same laptop"), clip(LAB, 19.0, 27.6, speed=1.12, label="Same prompt · same laptop")],
+    "12a": [clip(LAB, 3.0, 12.0, speed=1.12, label="Same prompt · same laptop"), clip(LAB, 19.0, 27.6, speed=1.12, label="Same prompt · same laptop")],
     "13": [still("cards/end.png", D["13"], 0.02)],
 }
-NO_FADE_OUT, NO_FADE_IN = {"02"}, {"03"}  # the rule card spans both scenes without a blink
-SCENE_ROW = {k: ("12a" if k == "12" else k) for k in SCENES}
+# no fades inside continuous stretches (Eliza card -> scene 03, and the whole product walkthrough)
+NO_FADE_OUT = {"02", "04", "05", "06a", "07", "06b"}
+NO_FADE_IN = {"03", "05", "06a", "07", "06b", "08"}
+SCENE_ROW = {k: k for k in SCENES}
 
 
 def build_scene(k):
@@ -114,7 +139,8 @@ LINES = {
 "03": "The rule exists. But the contract arrives as a photo, the recruiter says sign today, and it carries her name, her passport number, her phone. Uploading that to an AI website is exactly what a careful person shouldn't do.",
 "04": "This is Kontrata. It checks the contract before she signs, and her personal details never leave her device.",
 "05": "She adds the photo. Gemini Nano, running inside Chrome on her laptop, reads it right there. The image is never uploaded.",
-"06": "Nano finds the names and addresses; plain code covers passport, phone and ID numbers. Before anything leaves, she sees exactly what the cloud will see.",
+"06a": "Nano finds the names and addresses; plain code covers passport, phone and ID numbers.",
+"06b": "Before anything leaves, she sees exactly what the cloud will see.",
 "07": "The DMW rule checks run offline, and every finding quotes the official document it comes from. 1,200 Qatari riyals is about US$330, below the minimum. Keeping her passport: against the rules.",
 "08": "Only then does the cloud help. Gemini gets the anonymous text and explains it in everyday Taglish, the way Filipinos actually text. Her name is restored only on her device, and she gets questions to ask the agency.",
 "09": "This is the Airlock. With Firebase AI Logic, every call that sees the raw contract runs only on the device. The one cloud call runs only in the cloud, and the app checks where every answer actually came from.",
@@ -214,17 +240,15 @@ def main():
     mix = ";".join(fl) + ";" + "".join(f"[a{i}]" for i in range(len(ROWS))) + \
         f"amix=inputs={len(ROWS)}:normalize=0,apad,atrim=0:{total:.3f},loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[out]"
     run([*ins, "-filter_complex", mix, "-map", "[out]", "-ac", "2", "-c:a", "pcm_s16le", "work/narration.wav"])
-    # Background music: generated (gen_music.py), softened, kept ~20 dB under the voice and ducked further while she speaks.
+    # Background music: generated (gen_music.py), ~10 dB under the voice (measured), dipping gently while she speaks.
     subprocess.run([sys.executable, "gen_music.py", f"{total:.2f}", "work/music-raw.wav"], check=True)
     run(["-i", "work/narration.wav", "-i", "work/music-raw.wav", "-filter_complex",
-         "[1]lowpass=f=2800,aecho=0.8:0.6:70|150|290:0.22|0.15|0.08,loudnorm=I=-35:LRA=7,aresample=48000[m];"
-         "[0]asplit[v][key];[m][key]sidechaincompress=threshold=0.015:ratio=4:attack=120:release=900:makeup=1[md];"
+         "[1]lowpass=f=3200,aecho=0.8:0.6:70|150|290:0.22|0.15|0.08,loudnorm=I=-22:LRA=7,aresample=48000[m];"
+         "[0]asplit[v][key];[m][key]sidechaincompress=threshold=0.05:ratio=2:attack=200:release=1200:makeup=1[md];"
          "[v][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.89[out]",
          "-map", "[out]", "-c:a", "pcm_s16le", "work/mix.wav"])
-    fontsdir = os.path.dirname(FONT)
-    run(["-i", "work/video-silent.mp4", "-i", "work/mix.wav",
-         "-vf", f"subtitles=work/captions.ass:fontsdir={fontsdir}",
-         "-c:v", "libx264", "-crf", "18", "-preset", "slow", "-pix_fmt", "yuv420p", "-r", str(FPS),
+    # No burned-in captions: kontrata-demo.en.srt goes to YouTube as optional CC.
+    run(["-i", "work/video-silent.mp4", "-i", "work/mix.wav", "-map", "0:v", "-map", "1:a", "-c:v", "copy",
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", "kontrata-demo.mp4"])
     print(f"done: kontrata-demo.mp4 ({dur('kontrata-demo.mp4'):.1f}s)")
 
