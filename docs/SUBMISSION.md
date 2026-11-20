@@ -111,3 +111,17 @@ firebase, firebase-ai-logic, gemini, gemini-nano, chrome-built-in-ai, prompt-api
 - **Web app:** https://kontrata-hybrid.web.app (on-device AI needs desktop Chrome with Gemini Nano enabled; everything else works in any modern browser and on phones)
 - **Source code:** https://github.com/gauciv/kontrata
 - **Chrome extension (zip + install steps):** https://github.com/gauciv/kontrata/releases/tag/v0.1.0
+
+---
+
+## How the project meets the main technology requirement
+
+Kontrata is built on **Firebase AI Logic hybrid inference** (Gemini Developer API backend), on the web (`firebase` JS SDK 13.4) and on Android (`firebase-ai` + `firebase-ai-ondevice`). Hybrid inference isn't an add-on here; it *is* the privacy design. Each call is routed by how sensitive its input is:
+
+- **On-device (`InferenceMode.ONLY_ON_DEVICE`, Gemini Nano):** anything that sees the raw contract. Nano reads the contract photo (multimodal) and finds names and addresses (structured output). See `apps/web/src/ai/readDocument.ts`, `apps/web/src/ai/onDevice.ts` and `apps/android/.../Ai.kt`.
+- **Cloud (`InferenceMode.ONLY_IN_CLOUD`, `gemini-3.5-flash-lite`):** only the already-anonymised text, to write a detailed explanation in Taglish, Cebuano or English (on-device output doesn't support Tagalog) plus questions for the agency. Names are put back on the device. See `apps/web/src/ai/cloud.ts`.
+- **The SDK's `inferenceSource` is enforced, not just logged:** if a raw-text or image request is answered anywhere other than `on_device`, the result is refused. Between the two stages, a fail-closed leak gate re-checks the exact outbound prompt.
+- **Graceful fallback:** when Nano isn't available (unsupported device, model still downloading), the app still covers personal details with deterministic detectors and asks the user to review before anything is sent. On-device OCR (Tesseract in the browser, ML Kit on Android) replaces Nano for photos.
+- **Rest of the Firebase stack:** App Check (reCAPTCHA Enterprise) is enforced on AI Logic, Remote Config holds the DMW salary thresholds and the cloud model name, and the app is served from Firebase Hosting, all on the free Spark plan.
+
+Measured on a mid-range laptop: the same prompt took **1.8 s on-device vs 6.2 s in the cloud**, and on-device name detection was optimised from 18.6 s to 1.3 s through benchmarking (`docs/BENCHMARKS.md`). On-device Nano on Android is implemented, but it wasn't verified because no supported phone was available.
