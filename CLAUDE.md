@@ -106,4 +106,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   App Check debug token registered for the Android app, kept in apps/android/local.properties (gitignored) → BuildConfig.
   Emulator needs `-memory 3072` (low-memory killer otherwise). Verified E2E on emulator incl. Taglish cloud explanation.
   On-device Nano on Android NOT verifiable (no supported phone) → say so in video/write-up.
-  **Next:** Android photo test → write-up + video script
+  Android photo test ✓: ML Kit read sample photo on-device; OCR split passport "P48291 73B" still covered (fixture). 142 tests.
+  Debug token only in DEBUG build (release APK verified token-free). ⚠️ **TODO after judging (after Dec 16): revoke the
+  Android + web App Check debug tokens in the Firebase console.**
+  **Next:** write-up + video script
