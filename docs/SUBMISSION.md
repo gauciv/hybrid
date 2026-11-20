@@ -125,3 +125,33 @@ Kontrata is built on **Firebase AI Logic hybrid inference** (Gemini Developer AP
 - **Rest of the Firebase stack:** App Check (reCAPTCHA Enterprise) is enforced on AI Logic, Remote Config holds the DMW salary thresholds and the cloud model name, and the app is served from Firebase Hosting, all on the free Spark plan.
 
 Measured on a mid-range laptop: the same prompt took **1.8 s on-device vs 6.2 s in the cloud**, and on-device name detection was optimised from 18.6 s to 1.3 s through benchmarking (`docs/BENCHMARKS.md`). On-device Nano on Android is implemented, but it wasn't verified because no supported phone was available.
+
+---
+
+## Testing instructions
+
+**No credentials needed.** No sign-up, no login, nothing to pay for. Nothing you enter is stored.
+
+**1. Web app (main path, about 2 minutes): https://kontrata-hybrid.web.app**
+1. Click **Subukan ang sample ▾** (Try a sample) → **Photo ng contract**. Switch to **English** at the top right if you prefer.
+2. The photo is read on your device, then click **I-check** (Check). You'll see the DMW findings, each with its source quote.
+3. Scroll to **"What the cloud will see"**: names, passport, phone and address are covered with labelled bars.
+4. Click **Ipaliwanag** (Explain) for the cloud explanation (Taglish, Cebuano or English) and the questions to ask the agency. Expand "See exactly what was sent" to check that no personal data left the device.
+5. Also try **Post ng recruiter** (Recruiter post), or upload your own photo or PDF.
+
+**2. To see on-device Gemini Nano** (desktop Chrome only):
+- Use Chrome 139 or later on Windows, macOS or Linux, on hardware that meets Chrome's built-in AI requirements.
+- Open `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input`, set it to **Enabled**, and relaunch.
+- The first use downloads the model; you can watch progress at `chrome://on-device-internals`.
+- When Nano runs, the results show "On-device AI looked for names (x seconds)".
+- **Without Nano** (any other browser, phone, or unsupported hardware), the app still covers personal details with code and shows **"Please check before sending"**. Try **Cover these too** and the confirmation step: that's the fail-closed path working as designed.
+- To compare tiers side by side, open https://kontrata-hybrid.web.app/#lab → **1. Initialize on-device model** → **Only on-device**, then **Only cloud**. It shows each response's `inferenceSource` and timing.
+
+**3. Chrome extension** (works offline, makes no network calls):
+1. Download the zip from https://github.com/gauciv/kontrata/releases/tag/v0.1.0 and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and select the unzipped folder.
+3. On any page, for example the sample feed at https://kontrata-hybrid.web.app/demo/post.html, select a recruiter post → right-click → **I-check sa Kontrata**. The side panel shows the red flags.
+
+**4. Android app (source):** `apps/android` (Kotlin + Jetpack Compose). Building it needs your own Firebase project's `google-services.json` plus an App Check debug token; see `apps/android/README.md`. It's shown running in the demo video. On-device Nano on Android is implemented but unverified (no supported phone was available).
+
+**5. Engine tests:** `npm install && npm test` runs the 144 tests (redaction, leak gate, rules, cloud output validation).
