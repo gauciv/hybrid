@@ -110,4 +110,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Debug token only in DEBUG build (release APK verified token-free). ⚠️ **TODO after judging (after Dec 16): revoke the
   Android + web App Check debug tokens in the Firebase console.**
   Submission copy ✓ `docs/SUBMISSION.md` (pitch, About, Built with, Try it out). Media ✓ `docs/media/01–11` (1500×1000; raw shots in raw/).
-  **Next:** demo video script (≤3 min).
+  Browser API key restricted to referrers kontrata-hybrid.web.app/firebaseapp.com + localhost/127.0.0.1 (2026-11-20; verified:
+  other origins → ACCESS_DENIED, live cloud call OK). GitHub secret alert for it = close as "Won't fix" (public by design).
+  Demo autopilot at /#demo (scene picker: Taglish / English / Lab), records the tab to .webm. Repo renamed gauciv/kontrata.
+  **Next:** edit the demo video from the TUF takes + user's voice files (docs/media/video/, git-ignored).
