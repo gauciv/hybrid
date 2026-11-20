@@ -275,3 +275,12 @@ describe("security review: labelled IDs with leading words are not dropped", () 
     expect([...vault.values()].join(" ")).not.toContain("BPI");
   });
 });
+
+describe("fixture: real ML Kit OCR output on Android (emulator, 2026-11-20)", () => {
+  it("a passport number split by OCR ('P48291 73B') is still fully covered", () => {
+    const { redacted, vault } = redact("Passport No.: P48291 73B Mobile No.:\n+63 917 555 0142");
+    expect(redacted).toBe("Passport No.: [[PASSPORT_1]] Mobile No.:\n[[PHONE_1]]");
+    expect(vault.get("[[PASSPORT_1]]")).toBe("P48291 73B");
+    expect(leakGate(redacted, vault).ok).toBe(true);
+  });
+});
