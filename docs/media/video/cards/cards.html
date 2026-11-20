@@ -1,0 +1,77 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:"Public Sans";src:url("../../../../apps/android/app/src/main/res/font/public_sans.ttf");font-weight:100 900}
+@font-face{font-family:"Plex Serif";src:url("../../../../apps/android/app/src/main/res/font/ibm_plex_serif.ttf")}
+:root{--paper:#f5f6f4;--sheet:#fff;--ink:#1c2733;--ink2:#4a5560;--ledger:#1f4e5f;--rule:#d5dad6;--red:#9e2a2b}
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;background:var(--paper);color:var(--ink);font-family:"Public Sans";overflow:hidden}
+section{display:none;width:1920px;height:1080px;position:relative}
+section.on{display:flex}
+.quote{flex-direction:column;justify-content:center;padding:0 240px;gap:44px}
+.quote blockquote{font-family:"Plex Serif";font-size:64px;line-height:1.32;letter-spacing:-.005em}
+.quote blockquote .br{color:var(--ink2)}
+.quote .who{font-size:30px;font-weight:600}
+.quote .who span{display:block;font-weight:400;color:var(--ink2);font-size:24px;margin-top:10px}
+.mark{position:absolute;left:240px;top:150px;width:64px;height:6px;background:var(--ink)}
+.rule{flex-direction:column;justify-content:center;padding:0 240px;gap:36px}
+.rule .tag{font-size:26px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ledger)}
+.rule p{font-family:"Plex Serif";font-size:66px;line-height:1.3}
+.rule .src{font-size:26px;color:var(--ink2)}
+.photo{align-items:center;justify-content:center;flex-direction:column;gap:30px}
+.paper{position:relative;background:#fff;padding:34px 40px;box-shadow:0 30px 70px #1c273322,0 4px 12px #1c273314;transform:rotate(-1.2deg)}
+.paper img{display:block;width:1320px}
+.hl{position:absolute;border:4px solid var(--red);border-radius:4px;background:#9e2a2b10}
+.cap{font-size:24px;color:var(--ink2);letter-spacing:.02em}
+.still{align-items:center;justify-content:center}
+.still img{width:1620px;height:1080px;object-fit:contain}
+.end{flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center}
+.word{display:flex;align-items:center;gap:22px;font-size:96px;font-weight:700;letter-spacing:-.02em}
+.end h2{font-family:"Plex Serif";font-weight:400;font-size:56px}
+.links{display:flex;gap:44px;font-size:30px;color:var(--ledger);font-weight:600;margin-top:20px}
+.small{font-size:22px;color:var(--ink2);margin-top:30px}
+</style></head><body>
+
+<section id="q1" class="quote"><i class="mark"></i>
+  <blockquote>“If you are a domestic helper there <span class="br">[in Saudi Arabia]</span>, the boss is the contract – whatever they want, they will get”</blockquote>
+  <div class="who">Elena, former domestic worker<span>Amnesty International, “Once we step in their homes, we are no longer human”, MDE 23/1197/2026, p. 17</span></div>
+</section>
+
+<section id="q2" class="quote"><i class="mark"></i>
+  <blockquote>“It seemed to be just the way it is done there. I didn’t reject because it was my first time being abroad.”</blockquote>
+  <div class="who">Eliza, on handing over her passport<span>Amnesty International, MDE 23/1197/2026, p. 12</span></div>
+</section>
+
+<section id="rule" class="rule">
+  <div class="tag">The rule</div>
+  <p>Passports “must remain with the worker at all times.”</p>
+  <div class="src">Department of Migrant Workers, Advisory No. 25, s. 2025</div>
+</section>
+
+<section id="photo" class="photo">
+  <div class="paper"><img src="../../../../apps/web/public/samples/sample-contract-photo.png" alt=""></div>
+  <div class="cap">Fictional sample contract</div>
+</section>
+
+<section id="photohl" class="photo">
+  <div class="paper"><img src="../../../../apps/web/public/samples/sample-contract-photo.png" alt="">
+    <i class="hl" style="left:524px;top:122px;width:224px;height:42px"></i>
+    <i class="hl" style="left:139px;top:162px;width:179px;height:42px"></i>
+    <i class="hl" style="left:252px;top:202px;width:150px;height:42px"></i>
+    <i class="hl" style="left:536px;top:202px;width:230px;height:42px"></i>
+  </div>
+  <div class="cap">Fictional sample contract</div>
+</section>
+
+<section id="diagram" class="still"><img src="../../11-architecture.png" alt=""></section>
+<section id="ext" class="still"><img src="../../09-chrome-extension.png" alt=""></section>
+<section id="android" class="still"><img src="../../10-android.png" alt=""></section>
+
+<section id="end" class="end">
+  <div class="word"><svg width="77" height="91" viewBox="0 0 22 26"><path d="M2 1h12l6 6v18H2z" fill="none" stroke="#1c2733" stroke-width="1.6"/><path d="M14 1v6h6" fill="none" stroke="#1c2733" stroke-width="1.6"/><rect x="5.5" y="11" width="11" height="1.5" fill="#aeb6b1"/><rect x="5.5" y="15" width="11" height="3.2" fill="#1c2733"/><rect x="5.5" y="20.6" width="7" height="1.5" fill="#aeb6b1"/></svg>Kontrata</div>
+  <h2>Check the contract before you sign.</h2>
+  <div class="links"><span>kontrata-hybrid.web.app</span><span>github.com/gauciv/kontrata</span></div>
+  <div class="small">Built with Firebase AI Logic hybrid inference · Gemini Nano on-device · Gemini in the cloud</div>
+</section>
+
+<script>document.getElementById(new URLSearchParams(location.search).get("c")||"q1").classList.add("on")</script>
+</body></html>
