@@ -65,7 +65,7 @@ export const T = {
     amber: { tl: "Itanong ito", en: "Ask about this" },
     green: { tl: "OK", en: "In order" },
   },
-  inContract: { tl: "Nakasulat sa contract", en: "In the contract" },
+  inContract: { tl: "Ang nakasulat", en: "What it says" }, // fits contracts, posts, and chats
   basis: { tl: "Source", en: "Source" },
 
   airlockTitle: { tl: "Ito lang ang makikita ng cloud", en: "What the cloud will see" },

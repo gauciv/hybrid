@@ -26,7 +26,7 @@ describe("buildDeepCheckPrompt", () => {
   });
   it("carries the references, the offline findings, and the language", () => {
     expect(prompt).toContain("[ADV25_PASSPORT]");
-    expect(prompt).toContain("passport.withheld");
+    expect(prompt).toContain("Your passport would be taken or kept");
     expect(prompt).toContain("Tagalog");
   });
   it("the contract cannot break out of its block", () => {
@@ -68,5 +68,27 @@ describe("parseDeepCheck", () => {
   it("throws on unusable output", () => {
     expect(() => parseDeepCheck("I cannot help", redacted, vault)).toThrow();
     expect(() => parseDeepCheck('{"clauses":[]}', redacted, vault)).toThrow();
+  });
+});
+
+describe("deep check quality (found on Android screenshot, 2026-11-20)", () => {
+  const { redacted, vault } = redact(SAMPLE, ENTITIES);
+  it("internal reference ids never reach the worker", () => {
+    const raw = JSON.stringify({
+      summary: "May problema [ADV25_PASSPORT].",
+      clauses: [{ quote: "one rest day per month", status: "unclear", explanation: "Ayon sa DMW ay USD 500 [ADV25_WAGE, MC03_TRANSITION]. Tanungin mo ang agency (SEC_SG_FEES).", sourceId: "ADV25_WAGE" }],
+      questions: ["Bakit po ADV25_WAGE?"],
+    });
+    const r = parseDeepCheck(raw, redacted, vault);
+    const all = [r.summary, r.clauses[0].explanation, ...r.questions].join(" ");
+    expect(all).not.toMatch(/ADV25|MC03|SEC_SG/);
+    expect(r.clauses[0].explanation).toBe("Ayon sa DMW ay USD 500. Tanungin mo ang agency.");
+    expect(r.clauses[0].sourceId).toBe("ADV25_WAGE"); // the structured field keeps it
+  });
+  it("the prompt carries the exact offline facts and forbids contradicting them", () => {
+    const p = buildDeepCheckPrompt(redacted, checkDocument(redacted), "tl");
+    expect(p).toContain("US$330");
+    expect(p).toContain("[violates] Salary is too low");
+    expect(p).toMatch(/Never contradict them/);
   });
 });
