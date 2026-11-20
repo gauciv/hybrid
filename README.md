@@ -26,7 +26,7 @@ Gemini in the cloud.
 
 | Path | What |
 |---|---|
-| `packages/core` | The shared engine: redaction, leak gate, verdict, DMW rules, cloud prompt/validation, interface copy. **142 tests** (`npm test`) |
+| `packages/core` | The shared engine: redaction, leak gate, verdict, DMW rules, cloud prompt/validation, interface copy. **144 tests** (`npm test`) |
 | `apps/web` | Web app (React + Vite) on Firebase Hosting. Developer lab at `/#lab` |
 | `apps/extension` | Chrome MV3 extension: right-click → "I-check sa Kontrata". Offline, no network code |
 | `apps/android` | Kotlin + Jetpack Compose app. Runs the same engine in Jetpack JavaScriptSandbox. See its README |
@@ -37,7 +37,7 @@ Gemini in the cloud.
 
 ```bash
 npm install
-npm test                      # 142 engine tests
+npm test                      # 144 engine tests
 npm run dev                   # web app on localhost (App Check debug token required for cloud calls)
 npm run build:ext             # Chrome extension → load unpacked: apps/extension/dist
 npm -w packages/core run build:bridge && (cd apps/android && ./gradlew assembleDebug)   # Android
