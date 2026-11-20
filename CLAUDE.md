@@ -109,4 +109,5 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Android photo test ✓: ML Kit read sample photo on-device; OCR split passport "P48291 73B" still covered (fixture). 142 tests.
   Debug token only in DEBUG build (release APK verified token-free). ⚠️ **TODO after judging (after Dec 16): revoke the
   Android + web App Check debug tokens in the Firebase console.**
-  **Next:** write-up + video script
+  Submission copy ✓ `docs/SUBMISSION.md` (pitch, About, Built with, Try it out). Media ✓ `docs/media/01–11` (1500×1000; raw shots in raw/).
+  **Next:** demo video script (≤3 min).
