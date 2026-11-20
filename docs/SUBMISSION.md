@@ -110,4 +110,4 @@ firebase, firebase-ai-logic, gemini, gemini-nano, chrome-built-in-ai, prompt-api
 
 - **Web app:** https://kontrata-hybrid.web.app (on-device AI needs desktop Chrome with Gemini Nano enabled; everything else works in any modern browser and on phones)
 - **Source code:** https://github.com/gauciv/hybrid
-- *(optional)* **Android APK + Chrome extension:** GitHub release (see README for install steps)
+- **Chrome extension (zip + install steps):** https://github.com/gauciv/hybrid/releases/tag/v0.1.0

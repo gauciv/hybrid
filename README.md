@@ -28,7 +28,7 @@ Gemini in the cloud.
 |---|---|
 | `packages/core` | The shared engine: redaction, leak gate, verdict, DMW rules, cloud prompt/validation, interface copy. **144 tests** (`npm test`) |
 | `apps/web` | Web app (React + Vite) on Firebase Hosting. Developer lab at `/#lab` |
-| `apps/extension` | Chrome MV3 extension: right-click → "I-check sa Kontrata". Offline, no network code |
+| `apps/extension` | Chrome MV3 extension: right-click → "I-check sa Kontrata". Offline, no network code. [Download v0.1.0](https://github.com/gauciv/hybrid/releases/tag/v0.1.0) |
 | `apps/android` | Kotlin + Jetpack Compose app. Runs the same engine in Jetpack JavaScriptSandbox. See its README |
 | `docs/sources` | The DMW contracts, laws and issuances every rule cites (`SOURCES.csv`) |
 | `docs/THREAT-MODEL.md` · `docs/BENCHMARKS.md` · `docs/DESIGN.md` | Security model, on-device benchmarks, design notes |
