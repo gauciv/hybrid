@@ -50,8 +50,10 @@ Every response's `inferenceSource` is checked: if raw text was somehow answered 
 **A fail-closed gate, not a hopeful one.** After redaction, a leak gate re-scans the *exact* outbound payload, and a model-free name scan runs on every request. A result is only marked safe when every layer agrees:
 
 $$
-\text{safe}(p) \iff \underbrace{G(p) = \varnothing}_{\text{leak gate}} \;\land\; \underbrace{\text{NER} = \text{ok}}_{\text{Nano ran fully}} \;\land\; \underbrace{S(p) = \varnothing}_{\text{model-free name scan}}
+\text{safe}(p) \iff G(p) = \varnothing \;\land\; \text{NER}(p) = \text{ok} \;\land\; S(p) = \varnothing
 $$
+
+where $$p$$ is the exact text about to be sent, $$G(p)$$ is what the leak gate still finds in it, $$\text{NER}(p) = \text{ok}$$ means Gemini Nano ran fully on the device, and $$S(p)$$ is what the model-free name scan still finds.
 
 Otherwise the worker reviews the payload before anything is sent.
 
