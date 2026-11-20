@@ -63,7 +63,7 @@ $$
 
 The thresholds live in **Firebase Remote Config**, because the outcome of DMW's six-month review of the US\$500 minimum isn't public yet. When it is, one value changes and every app updates.
 
-**One engine, three platforms.** The redaction, verdict and rules engine is TypeScript in `packages/core` (**142 tests**, including property-based tests with fast-check that generate hundreds of random contracts). The web app and the Chrome extension import it directly. The **Android app runs the same bundle inside Jetpack JavaScriptSandbox**, an isolated JS engine, instead of a Kotlin rewrite, so a privacy fix ships everywhere at once. Even the interface text is shared.
+**One engine, three platforms.** The redaction, verdict and rules engine is TypeScript in `packages/core` (**144 tests**, including property-based tests with fast-check that generate hundreds of random contracts). The web app and the Chrome extension import it directly. The **Android app runs the same bundle inside Jetpack JavaScriptSandbox**, an isolated JS engine, instead of a Kotlin rewrite, so a privacy fix ships everywhere at once. Even the interface text is shared.
 
 **Stack:** Firebase AI Logic (hybrid, Gemini Developer API), App Check enforced with reCAPTCHA Enterprise, Remote Config and Hosting, all on the free Spark plan. React + Vite web app, MV3 Chrome extension (no network code at all), and a Kotlin + Jetpack Compose Android app with ML Kit.
 
@@ -81,7 +81,7 @@ The thresholds live in **Firebase Remote Config**, because the outcome of DMW's 
 - A privacy guarantee you can **see**: the Airlock view shows exactly what the cloud receives.
 - On real hardware, on-device inference answered in **1.5 s vs 7.3 s** for the same prompt in the cloud, and name detection got 14× faster through benchmarking.
 - **Every legal claim is cited** to a real DMW document, and DMW's own contracts pass with zero red flags.
-- **One engine running unchanged on web, Chrome and Android**, backed by 142 tests.
+- **One engine running unchanged on web, Chrome and Android**, backed by 144 tests.
 - A design that feels like a trusted government counter, not a chatbot, in the language people actually use.
 
 ## What we learned
