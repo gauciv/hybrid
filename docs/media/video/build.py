@@ -10,6 +10,7 @@ PAPER = "0xf5f6f4"
 TL = "work/kontrata-product-tl-025849.mp4"
 LAB = "work/kontrata-lab-025527.mp4"
 REVIEW = "work/review.mp4"
+EXT = "work/extfeed.mp4"  # mock feed + the REAL extension side panel bundle (work/fbdemo)
 os.makedirs("work/scenes", exist_ok=True)
 
 
@@ -67,8 +68,9 @@ def render_piece(p, out):
 REAL = "Real recording · Gemini Nano in Chrome · mid-range laptop"
 SCENES = {
     "01": [still("cards/q1.png", D["01"])],
-    "02": [still("cards/q2.png", D["02"])],
-    "03": [still("cards/rule.png", 2.4, 0.02), still("cards/photo.png", 4.5, 0.02), still("cards/photohl.png", D["03"] - 6.9, 0.03)],
+    "02": [still("cards/q2.png", 7.0), still("cards/rule.png", D["02"] - 7.0)],
+    # rule card continues seamlessly from scene 02 until "...arrives as a photo"; boxes appear on "carries"
+    "03": [still("cards/rule.png", 3.75), still("cards/photo.png", 3.35), still("cards/photohl.png", D["03"] - 7.1)],
     "04": [clip(TL, 0.0, 4.4, speed=0.56, label=REAL)],
     "05": [clip(TL, 4.4, 9.0, label=REAL), clip(TL, 9.0, 31.0, speed=8, label="Reading the photo on the device · 8× speed"), clip(TL, 31.0, 34.5, label=REAL)],
     "06": [clip(TL, 37.0, 44.6, crop=(1120, 630, 390, 20), label=REAL), clip(TL, 58.0, 63.0, label="What the cloud will see")],
@@ -76,10 +78,12 @@ SCENES = {
     "08": [clip(TL, 66.0, 70.0, crop=MID, label="Cloud: anonymous text only"), clip(TL, 70.0, 78.0, speed=4, crop=MID, label="Gemini in the cloud · 4× speed"), clip(TL, 78.0, 98.2, speed=1.87, label="Explained in Taglish · names restored on the device")],
     "09": [still("cards/diagram.png", D["09"], 0.06)],
     "10": [clip(REVIEW, 41.0, 58.5, speed=1.25, crop=(1280, 720, 170, 150), label="Recorded on a laptop WITHOUT on-device AI")],
-    "11": [still("cards/ext.png", 8.9, 0.03, label="Chrome extension · offline"), still("cards/android.png", D["11"] - 8.9, 0.03, label="Android app · Kotlin + Compose · same engine")],
+    "11": [clip(EXT, 1.0, 12.0, speed=1.25, crop=(1920, 1080, 0, 0), label="Chrome extension · real extension code, offline · sample feed, menu drawn for the video"),
+           still("cards/android.png", D["11"] - 8.8, label="Android app · Kotlin + Compose · same engine")],
     "12": [clip(LAB, 3.0, 12.0, speed=1.12, label="Same prompt · same laptop"), clip(LAB, 19.0, 27.6, speed=1.12, label="Same prompt · same laptop")],
     "13": [still("cards/end.png", D["13"], 0.02)],
 }
+NO_FADE_OUT, NO_FADE_IN = {"02"}, {"03"}  # the rule card spans both scenes without a blink
 SCENE_ROW = {k: ("12a" if k == "12" else k) for k in SCENES}
 
 
@@ -96,8 +100,9 @@ def build_scene(k):
     run(["-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", joined])
     have = dur(joined)
     pad = max(0.0, target - have + 0.05)
-    vf = (f"tpad=stop_mode=clone:stop_duration={pad:.3f},trim=0:{target:.3f},setpts=PTS-STARTPTS,"
-          f"fade=t=in:st=0:d=0.3:color={PAPER},fade=t=out:st={target - 0.3:.3f}:d=0.3:color={PAPER}")
+    vf = (f"tpad=stop_mode=clone:stop_duration={pad:.3f},trim=0:{target:.3f},setpts=PTS-STARTPTS"
+          + ("" if k in NO_FADE_IN else f",fade=t=in:st=0:d=0.3:color={PAPER}")
+          + ("" if k in NO_FADE_OUT else f",fade=t=out:st={target - 0.3:.3f}:d=0.3:color={PAPER}"))
     run(["-i", joined, "-vf", vf, "-r", str(FPS), "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "16", "-preset", "medium", f"work/scenes/{k}.mp4"])
     print(f"scene {k}: {target:.2f}s (source {have:.2f}s)", flush=True)
 

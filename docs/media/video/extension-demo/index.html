@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fil"><head><meta charset="utf-8"><title>Feed</title>
+<style>
+/* Familiar social-feed layout for the demo video. Deliberately unbranded: no real site's name, logo or colours. */
+:root{--bg:#eef0f3;--card:#fff;--ink:#1b1f24;--ink2:#64707d;--line:#dfe3e8;--acc:#4a6585;--hover:#f2f4f6}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans",sans-serif}
+.app{display:flex;height:100vh}
+.page{flex:1;display:flex;flex-direction:column;min-width:0;transition:none}
+.top{height:56px;background:var(--card);box-shadow:0 1px 2px #0000001a;display:flex;align-items:center;padding:0 16px;gap:10px;flex:none;z-index:2}
+.mark{width:40px;height:40px;border-radius:50%;background:var(--acc);display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;letter-spacing:-.02em}
+.search{width:240px;height:40px;border-radius:20px;background:var(--bg);display:flex;align-items:center;padding:0 14px;color:var(--ink2);gap:8px}
+.nav{flex:1;display:flex;justify-content:center;gap:8px}
+.nav i{width:96px;height:44px;border-radius:8px;display:grid;place-items:center;color:var(--ink2)}
+.nav i.on{color:var(--acc);border-bottom:3px solid var(--acc);border-radius:0}
+.me{display:flex;gap:8px}
+.me b{width:40px;height:40px;border-radius:50%;background:#e4e6e9;display:grid;place-items:center}
+.body{flex:1;overflow:hidden;display:flex;justify-content:center;gap:28px;padding:16px 16px 0}
+.side{width:280px;flex:none;padding-top:4px}
+.side div{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:8px;font-weight:600;color:#2a3138}
+.side span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px}
+.feed{width:590px;flex:none;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border-radius:10px;box-shadow:0 1px 2px #0000001f}
+.ph{display:flex;gap:10px;padding:12px 16px 0;align-items:center}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;flex:none}
+.who{font-weight:650;font-size:15px}
+.who small{font-weight:400;color:var(--ink2)}
+.when{font-size:13px;color:var(--ink2)}
+.dots{margin-left:auto;color:var(--ink2);font-size:20px;letter-spacing:1px}
+.text{padding:10px 16px 12px;font-size:17px;white-space:pre-line;line-height:1.5}
+.stats{display:flex;justify-content:space-between;padding:8px 16px;color:var(--ink2);font-size:14px}
+.emo{display:inline-flex;align-items:center;gap:6px}
+.emo i{width:19px;height:19px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-style:normal;border:2px solid #fff;margin-right:-8px}
+.acts{display:flex;margin:0 12px;border-top:1px solid var(--line);padding:4px 0}
+.acts span{flex:1;display:flex;justify-content:center;align-items:center;gap:8px;color:var(--ink2);font-weight:600;padding:7px;border-radius:6px}
+.comments{padding:6px 16px 14px;display:grid;gap:8px;border-top:1px solid var(--line);margin:0 12px}
+.cm{display:flex;gap:8px}
+.cm .av{width:32px;height:32px;font-size:12px}
+.bubble{background:var(--bg);border-radius:16px;padding:7px 12px;font-size:14px}
+.bubble b{display:block;font-size:13px}
+.lite{color:var(--ink2);font-size:12px;margin:2px 0 0 12px}
+.compose{display:flex;gap:8px;align-items:center}
+.compose .box{flex:1;height:34px;border-radius:17px;background:var(--bg);color:var(--ink2);font-size:14px;display:flex;align-items:center;padding:0 12px}
+.right{width:260px;flex:none;padding-top:4px;color:var(--ink2);font-weight:600}
+.right h4{font-size:15px;margin:4px 8px 8px}
+.right div{display:flex;align-items:center;gap:10px;padding:7px 8px;color:#2a3138}
+.right div span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+::selection{background:#b8d3f5}
+
+/* Browser-style side panel (drawn for the video; the content inside is the real extension) */
+.sp{width:0;flex:none;overflow:hidden;background:#fff;border-left:1px solid #d7dbe0;display:flex;flex-direction:column}
+.sp-head{height:40px;display:flex;align-items:center;gap:8px;padding:0 10px;font:600 13px system-ui,sans-serif;color:#3c4043;border-bottom:1px solid #e3e6ea;width:430px}
+.sp-head img{width:16px;height:16px}
+.sp-head .x{margin-left:auto;color:#5f6368;font-size:16px}
+.sp iframe{width:430px;flex:1;border:0}
+/* Browser-style context menu */
+.ctx{position:fixed;display:none;min-width:290px;background:#fff;border-radius:8px;box-shadow:0 2px 6px #0000002e,0 8px 24px #0000001f;padding:6px 0;font:13.5px system-ui,"Segoe UI",sans-serif;color:#202124;z-index:50}
+.ctx div{padding:6px 16px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.ctx div.sel{background:#e8eaed}
+.ctx hr{border:0;border-top:1px solid #e3e3e3;margin:5px 0}
+.ctx img{width:16px;height:16px}
+.ctx .k{min-width:16px}
+.cursor{position:fixed;left:0;top:0;z-index:99;pointer-events:none}
+</style></head><body>
+<div class="app">
+ <div class="page">
+  <div class="top">
+   <div class="mark">fd</div>
+   <div class="search">⌕ <span>Search</span></div>
+   <div class="nav"><i class="on"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg></i><i><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h13v12H3zM17 10l4-3v10l-4-3z"/></svg></i><i><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="9" r="3.4"/><circle cx="16" cy="9" r="3.4"/><path d="M1.5 19c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5zM13 19c.4-1.6 1.2-2.9 2.3-3.8 3 .1 5.3 1.4 6.2 3.8z"/></svg></i></div>
+   <div class="me"><b>⋯</b><b>✉</b><b>🔔</b><b style="background:#7f8f6a;color:#fff;font-weight:700">AM</b></div>
+  </div>
+  <div class="body">
+   <div class="side">
+    <div><span style="background:#7f8f6a">AM</span>Ana M.</div>
+    <div><span style="background:#4a6585">👥</span>Friends</div>
+    <div><span style="background:#8a6a4f">🏷</span>Marketplace</div>
+    <div><span style="background:#5b7b6e">✈</span>Trabaho Abroad Hiring (group)</div>
+    <div><span style="background:#7b5b7e">⌚</span>Memories</div>
+   </div>
+   <div class="feed">
+    <article class="card" id="post">
+     <div class="ph"><div class="av" style="background:#9a6b4f">JA</div>
+      <div><div class="who">Joy Abroad Hiring <small>▸ Trabaho Abroad Hiring</small></div><div class="when">Just now · 🌐</div></div>
+      <div class="dots">···</div></div>
+     <div class="text" id="posttext">🔥URGENT HIRING🔥 DH / Kasambahay for DUBAI 🇦🇪
+✅ Salary 1,500 AED
+✅ Direct employer, NO NEED AGENCY
+✅ Tourist visa muna, convert to working visa pagdating
+Processing fee ₱25,000 lang, send via GCash 0917-000-1234 (Ma'am Joy)
+PM agad, limited slots! Alis next week 🛫</div>
+     <div class="stats"><span class="emo"><i style="background:#4a6585">👍</i><i style="background:#c0504d">♥</i>&nbsp;&nbsp;&nbsp;214</span><span>86 comments · 41 shares</span></div>
+     <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+     <div class="comments">
+      <div class="cm"><div class="av" style="background:#6a7f99">LR</div><div><div class="bubble"><b>Lorna R.</b>Interested po ma'am, PM sent 🙏</div><div class="lite">12m · Like · Reply</div></div></div>
+      <div class="cm"><div class="av" style="background:#8f7a5a">JD</div><div><div class="bubble"><b>Jhen D.</b>Pwede po ba first timer? Wala pa po akong passport</div><div class="lite">9m · Like · Reply</div></div></div>
+      <div class="compose"><div class="av" style="background:#7f8f6a;width:32px;height:32px;font-size:12px">AM</div><div class="box">Write a comment…</div></div>
+     </div>
+    </article>
+    <article class="card">
+     <div class="ph"><div class="av" style="background:#5f7a94">MC</div>
+      <div><div class="who">Marco C.</div><div class="when">2 h · 🌐</div></div><div class="dots">···</div></div>
+     <div class="text">Traffic sa EDSA ngayon grabe 😩 3 hours na ako dito</div>
+     <div class="stats"><span class="emo"><i style="background:#4a6585">👍</i>&nbsp;&nbsp;18</span><span>4 comments</span></div>
+     <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+    </article>
+   </div>
+   <div class="right">
+    <h4>Contacts</h4>
+    <div><span style="background:#6a7f99">LR</span>Lorna R.</div>
+    <div><span style="background:#5b7b6e">TN</span>Tess N.</div>
+    <div><span style="background:#8f7a5a">BC</span>Bong C.</div>
+    <div><span style="background:#7b5b7e">MS</span>Mila S.</div>
+   </div>
+  </div>
+ </div>
+ <aside class="sp" id="sp">
+  <div class="sp-head"><img src="icons/32.png" alt="">Kontrata <span class="x">✕</span></div>
+  <iframe id="panel" src="panel.html"></iframe>
+ </aside>
+</div>
+<div class="ctx" id="ctx">
+ <div>Copy</div>
+ <div>Search the web for “🔥URGENT HIRING🔥 DH / Kasa…”</div>
+ <div>Print…</div>
+ <hr>
+ <div id="kitem"><img src="icons/16.png" alt="">I-check sa Kontrata</div>
+ <hr>
+ <div>Inspect</div>
+</div>
+<svg class="cursor" id="cur" width="26" height="26" viewBox="0 0 26 26"><path d="M3 2l17 9.5-7.4 1.7L9 20.5z" fill="#1c2733" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+<script>
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const ease = (k) => (k < .5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
+const anim = (ms, f) => new Promise((done) => { const t0 = performance.now(); const tick = (n) => { const k = Math.min(1, (n - t0) / ms); f(ease(k)); k < 1 ? requestAnimationFrame(tick) : done(); }; requestAnimationFrame(tick); });
+const cur = document.getElementById("cur");
+let cx = innerWidth * .78, cy = innerHeight * .7;
+const put = () => (cur.style.transform = `translate(${cx - 3}px,${cy - 2}px)`); put();
+const move = async (x, y, ms = 900) => { const [x0, y0] = [cx, cy]; await anim(ms, (k) => { cx = x0 + (x - x0) * k; cy = y0 + (y - y0) * k; put(); }); };
+
+async function run() {
+  await sleep(1800);
+  const node = document.getElementById("posttext").firstChild;
+  const len = node.length;
+  const r = document.createRange();
+  // point at the first character
+  r.setStart(node, 0); r.setEnd(node, 1);
+  let b = r.getBoundingClientRect();
+  await move(b.left - 2, b.top + b.height / 2, 1100);
+  await sleep(300);
+  // drag-select the whole post, cursor following the selection end
+  const sel = getSelection();
+  const steps = 70;
+  for (let i = 1; i <= steps; i++) {
+    const end = Math.round(len * ease(i / steps));
+    const rr = document.createRange(); rr.setStart(node, 0); rr.setEnd(node, end);
+    sel.removeAllRanges(); sel.addRange(rr);
+    const rects = rr.getClientRects(); const last = rects[rects.length - 1];
+    if (last) { cx = last.right; cy = last.top + last.height / 2; put(); }
+    await sleep(26);
+  }
+  await sleep(700);
+  // right-click → context menu
+  const ctx = document.getElementById("ctx");
+  ctx.style.left = cx + 4 + "px"; ctx.style.top = cy - 20 + "px"; ctx.style.display = "block";
+  await sleep(900);
+  const k = document.getElementById("kitem").getBoundingClientRect();
+  await move(k.left + 60, k.top + k.height / 2, 700);
+  document.getElementById("kitem").classList.add("sel");
+  await sleep(700);
+  ctx.style.display = "none";
+  // open the side panel and hand the selection to the REAL extension code
+  const text = sel.toString();
+  const sp = document.getElementById("sp");
+  await anim(450, (q) => (sp.style.width = 430 * q + "px"));
+  (window.__kListeners || []).forEach((f) => f({ pending: { newValue: { text, at: Date.now() } } }, "session"));
+  await move(innerWidth - 200, innerHeight * .55, 900);
+  await sleep(2600);
+  // read down the findings inside the panel
+  const w = document.getElementById("panel").contentWindow;
+  const target = w.document.querySelector(".k-verdict");
+  if (target) await anim(1400, (q) => w.scrollTo(0, (target.getBoundingClientRect().top + w.scrollY - 12) * q));
+  await sleep(2400);
+  for (let i = 0; i < 4; i++) { const y0 = w.scrollY; await anim(1500, (q) => w.scrollTo(0, y0 + 300 * q)); await sleep(1500); }
+  await sleep(1500);
+  document.title = "DONE";
+}
+addEventListener("load", () => (location.hash === "#go" ? run() : null));
+</script>
+</body></html>

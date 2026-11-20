@@ -33,5 +33,6 @@ apps/android/build/
 docs/media/video/*
 !docs/media/video/build.py
 !docs/media/video/gen_music.py
+!docs/media/video/extension-demo/
 !docs/media/video/cards/
 docs/media/video/cards/*.png
