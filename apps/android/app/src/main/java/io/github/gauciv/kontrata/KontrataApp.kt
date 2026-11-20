@@ -14,9 +14,10 @@ class KontrataApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Firebase.initialize(context = this)
-        // App Check is ENFORCED for Firebase AI Logic. Without Google Play distribution there is no Play Integrity, so
-        // this build uses the debug provider (accepted by the hackathon). The debug secret comes from local.properties
-        // at build time and is never committed.
+        // App Check is ENFORCED for Firebase AI Logic. Without Google Play distribution there is no Play Integrity (and a
+        // custom attestation server would need the paid Blaze plan), so the judging build uses the debug provider, which
+        // the hackathon accepts. The token is only compiled into DEBUG builds from local.properties (never committed),
+        // the project has no billing account (worst case = free-tier quota), and the token is revoked after judging.
         if (BuildConfig.APP_CHECK_DEBUG_TOKEN.isNotEmpty()) seedDebugSecret(this, BuildConfig.APP_CHECK_DEBUG_TOKEN)
         Firebase.appCheck.installAppCheckProviderFactory(DebugAppCheckProviderFactory.getInstance())
         Config.init()

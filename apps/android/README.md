@@ -31,6 +31,12 @@ cd apps/android && ./gradlew assembleDebug
 ```
 Needs `app/google-services.json` (Firebase console → project settings) and, for App Check while enforcement is on,
 `appCheckDebugToken=<registered debug token>` in `local.properties` (both gitignored).
+**App Check trade-off (deliberate):** Play Integrity needs Play Store distribution (paid) and a custom attestation
+server needs Cloud Functions (paid Blaze plan), which conflicts with this project's zero-cost constraint. So the
+*debug* build, used for judging, carries a registered App Check debug token; release builds carry none (verified in
+the APK). Worst case if extracted: use of the free-tier Gemini quota (the project has no billing account, so no cost).
+**The token is revoked after judging.**
+
 The emulator needs ≥3 GB RAM (`emulator -avd <name> -memory 3072`); with less, Android's low-memory killer stops the
 app because the JavaScript sandbox runs as a separate process.
 

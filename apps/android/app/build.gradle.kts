@@ -20,10 +20,15 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "APP_CHECK_DEBUG_TOKEN", "\"${local.getProperty("appCheckDebugToken", "")}\"")
     }
     buildTypes {
-        release { isMinifyEnabled = false }
+        // The App Check debug token goes ONLY into the debug build (the judging/demo APK). Release builds carry none:
+        // their offline checks work, the cloud explanation does not. Revoke the token after judging.
+        debug { buildConfigField("String", "APP_CHECK_DEBUG_TOKEN", "\"${local.getProperty("appCheckDebugToken", "")}\"") }
+        release {
+            isMinifyEnabled = false
+            buildConfigField("String", "APP_CHECK_DEBUG_TOKEN", "\"\"")
+        }
     }
     buildFeatures {
         compose = true
