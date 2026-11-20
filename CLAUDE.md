@@ -113,4 +113,5 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Browser API key restricted to referrers kontrata-hybrid.web.app/firebaseapp.com + localhost/127.0.0.1 (2026-11-20; verified:
   other origins → ACCESS_DENIED, live cloud call OK). GitHub secret alert for it = close as "Won't fix" (public by design).
   Demo autopilot at /#demo (scene picker: Taglish / English / Lab), records the tab to .webm. Repo renamed gauciv/kontrata.
-  **Next:** edit the demo video from the TUF takes + user's voice files (docs/media/video/, git-ignored).
+  Demo video built (docs/media/video/build.py) and on YouTube. ✅ **SUBMITTED to Devpost (2026-11-20).** Folder renamed kiroween → hybridai-devpost.
+  Remaining: keep the Firebase project live through judging; revoke both App Check debug tokens after Dec 16.
