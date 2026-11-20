@@ -39,7 +39,7 @@ against real DMW standard contracts, findings rehydrated locally. Visible "Airlo
   Facts learned: SDK firebase@13.4 · `response.inferenceSource` = "on_device" | "in_cloud" · `initializeDeviceModel()` needs a user click ·
   default cloud model `gemini-3.5-flash-lite` · **on-device output languages = de, en, es, fr, ja only (no Tagalog)**.
   Arch laptop: Chrome perf class "very low" → no Nano (bypass flag optional). Claude's DevTools Chrome has no Nano either.
-  **ASUS TUF (borrowed, perf class Medium, `availability()`="downloadable") = on-device test + demo-filming machine.** Never put credentials on it.
+  **ASUS TUF (borrowed, perf class Medium, `availability()`="downloadable") = on-device test + demo-filming machine.** (User runs Claude/git there too; credentials concern lifted 2026-11-20.)
   App Check: debug token registered, stored in `apps/web/.env.development.local` (gitignored; verified absent from prod bundle).
   App Check provider = **reCAPTCHA Enterprise / "Fraud Defense"** (`ReCaptchaEnterpriseProvider`, site key 6LepDSgu…QN8, public).
   Live site token exchange verified 200 + cloud call OK. Billing verified `billingEnabled: false` via gcloud.

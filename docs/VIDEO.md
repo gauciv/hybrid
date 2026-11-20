@@ -26,7 +26,7 @@ Sample contract and post are fictional/synthetic and are labelled so on screen.
 | 9 | 1:47–2:05 | Architecture diagram (`docs/media/11-architecture.png`), highlight on-device column, then the arrow, then cloud | "This is the Airlock. With Firebase AI Logic, every call that sees raw text is ONLY_ON_DEVICE. The one cloud call is ONLY_IN_CLOUD, and the app checks where every answer actually came from." |
 | 10 | 2:05–2:17 | Review state on a laptop without Nano: "Please check before sending" → "Cover these too" | "And it fails closed. Nano is nondeterministic. Once, it missed a name. So a model-free scan runs on every request, and if something looks uncovered, or Nano isn't available, she covers it in one tap." |
 | 11 | 2:17–2:35 | Split: Chrome extension (right-click a synthetic recruiter post → side panel), then Android emulator | "The same tested engine runs everywhere: a Chrome extension that checks a recruiter's post offline with a right-click, and a native Android app. On Android, on-device Nano is built in but unverified; I had no supported phone, so here it uses the code layers and the cloud." |
-| 12 | 2:35–2:47 | **TUF clip T2**: lab at `/#lab`, same prompt ONLY_ON_DEVICE vs ONLY_IN_CLOUD timings. Then stat strip: 14× · 144 tests · zero red flags on DMW's own contracts | "On real hardware, on-device answered in one and a half seconds, the cloud in seven. Every rule cites a real DMW document, and all of it runs on Firebase's free plan." |
+| 12 | 2:35–2:47 | **TUF clip T2**: lab at `/#lab`, same prompt ONLY_ON_DEVICE vs ONLY_IN_CLOUD timings. Then stat strip: 14× · 144 tests · zero red flags on DMW's own contracts | "On this laptop, on-device answered in [X] seconds, the cloud in [Y]. Every rule cites a real DMW document, and all of it runs on Firebase's free plan." **Fill X/Y from what T2 actually shows** (cloud latency varies: 7.3 s cold on 2026-11-19, 1.4 s warm on 2026-11-20; if cloud wins, say "and the raw contract never left the laptop" instead of comparing speed). |
 | 13 | 2:47–2:53 | End card: wordmark, *Check the contract before you sign.*, kontrata-hybrid.web.app, github.com/gauciv/hybrid | "Kontrata. Check the contract before you sign." |
 
 ---
@@ -45,17 +45,19 @@ Sample contract and post are fictional/synthetic and are labelled so on screen.
 | 12 lab timings | **You, on the TUF** (clip T2) | Same prompt, on-device vs cloud |
 | Narration | Decide: your voice (recommended) or local TTS | See below |
 
-### TUF recording instructions (clips T1 and T2)
-No credentials needed on the TUF: only the public site.
-1. Chrome on the TUF, window maximised, zoom 100%, close other tabs, hide bookmarks bar (Ctrl+Shift+B).
-2. Open https://kontrata-hybrid.web.app once and click anything so Nano is warm (the first run is slower).
-3. Record the screen with **Win+Alt+R** (Xbox Game Bar, built in) or OBS, 1080p 30 fps, no mic.
-4. **T1** (about 40 s): language Tagalog → *Subukan ang sample* → *Photo ng contract* → wait → *I-check* → scroll slowly
-   through the Airlock panel (pause 3 s on the "seconds" line) → findings → open one *Source* → *Ipaliwanag* (Taglish) →
-   wait → scroll to the questions. Move the mouse slowly; pause 2 s after each click.
-5. **T2** (about 15 s): open https://kontrata-hybrid.web.app/#lab → run the same prompt ONLY_ON_DEVICE, then ONLY_IN_CLOUD,
-   so both timings are on screen.
-6. Send me the two files (Drive, USB, anything). I cut, caption and assemble everything else.
+### TUF recording: demo autopilot (clips T1 and T2)
+The site films itself: `apps/web/src/demo/autopilot.ts`, live on https://kontrata-hybrid.web.app. Nothing to install or clone.
+1. Plug in power, close other apps. Chrome (your normal profile, where Nano is downloaded), one tab, zoom 100%.
+2. Warm Nano once: open https://kontrata-hybrid.web.app, Subukan ang sample → Photo ng contract → I-check. Close the tab.
+3. **T1:** open `https://kontrata-hybrid.web.app/#demo` → press **F11** (fullscreen) → click **● Start recording** →
+   choose **This tab** → Share. Hands off the mouse. It loads the sample photo, reads it with Nano, checks, shows the
+   Airlock, explains in Taglish, scrolls to the questions, then downloads `kontrata-product-tl-*.webm` (about 1:30).
+   `#demo-en` does the same in English (record it too: gives us English UI shots for captions).
+4. **T2:** open `https://kontrata-hybrid.web.app/#demo-lab` → F11 → Start recording → This tab. It initializes Nano, runs
+   the same prompt ONLY_ON_DEVICE then ONLY_IN_CLOUD, and downloads `kontrata-lab-*.webm`.
+5. Check the T1 file shows "On-device AI looked for names (… seconds)" under the heading. If it shows the "Please check
+   before sending" box instead, Nano didn't run: redo step 2 and record again.
+6. Use **Practice run** first if you want to watch without recording. Send me the .webm files (Drive/USB/git-ignored folder).
 
 ### Narration options
 - **Your own voice (recommended).** A real Filipino student telling this story is worth more to judges than any synthetic voice.
